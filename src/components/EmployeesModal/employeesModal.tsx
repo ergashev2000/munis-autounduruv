@@ -1,7 +1,24 @@
 import React, { useState } from "react";
-import { Button, Input, Modal, Form, Checkbox, Flex, Typography } from "antd";
+import {
+  Button,
+  Input,
+  Modal,
+  Form,
+  Checkbox,
+  Flex,
+  Typography,
+  Space,
+  Row,
+  Col,
+  Select,
+  SelectProps,
+} from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+} from "@ant-design/icons";
 
 const EmployeesModal: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -37,77 +54,139 @@ const EmployeesModal: React.FC = () => {
     }, 2000);
   };
 
+  const options: SelectProps["options"] = [];
+
+  for (let i = 0; i < 100000; i++) {
+    const value = `Fargona-${i.toString(36)}${i}`;
+    options.push({
+      label: value,
+      value,
+      disabled: i === 10,
+    });
+  }
+
+  const handleChange = (value: string[]) => {
+    console.log(`selected ${value}`);
+  };
+
   return (
     <>
       <Button type="primary" onClick={() => setOpen(true)} size="large">
-        <PlusOutlined /> Lavozim qo'shish
+        <PlusOutlined /> Foydalanuvchi qo'shish
       </Button>
       <Modal
-        title="Lavozim qo'shish"
+        title="Foydalanuvchi qo'shish"
         centered
         open={open}
         onOk={() => handleOk()}
         onCancel={() => setOpen(false)}
-        width={500}
+        width={800}
         okText={"Tasdiqlash"}
         cancelText={"Bekor qilish"}
         confirmLoading={confirmLoading}
       >
-        <Form layout="vertical">
-          <Form.Item label="Lavozim nomi" name="positionName">
-            <Input
-              placeholder="Lavozim nomi"
-              value={positionName}
-              onChange={handleInputChange}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Typography.Title level={5}>
-              Qo'shimcha imkonyatlar
-            </Typography.Title>
-            <Flex>
-              <Flex vertical gap={20} style={{ width: "50%" }}>
-                <Checkbox
-                  name="sozlanmalar"
-                  checked={checkboxValues.sozlanmalar}
-                  onChange={handleCheckboxChange}
-                >
-                  Sozlanmalar
-                </Checkbox>
-                <Checkbox
-                  name="adminHisoboti"
-                  checked={checkboxValues.adminHisoboti}
-                  onChange={handleCheckboxChange}
-                >
-                  Admin Hisoboti
-                </Checkbox>
-                <Checkbox
-                  name="filialMenyusi"
-                  checked={checkboxValues.filialMenyusi}
-                  onChange={handleCheckboxChange}
-                >
-                  Filial Menyusi
-                </Checkbox>
-              </Flex>
-              <Flex vertical gap={20} style={{ width: "50%" }}>
-                <Checkbox
-                  name="kartaBoglash"
-                  checked={checkboxValues.kartaBoglash}
-                  onChange={handleCheckboxChange}
-                >
-                  Karta Bog'lash
-                </Checkbox>
-                <Checkbox
-                  name="hisobotlar"
-                  checked={checkboxValues.hisobotlar}
-                  onChange={handleCheckboxChange}
-                >
-                  Hisobotlar
-                </Checkbox>
-              </Flex>
+        <Form>
+          <Typography.Title level={4}>
+            Foydalanuvchi ma'lumotlari
+          </Typography.Title>
+          <Flex justify="space-between" gap={20}>
+            <Flex vertical gap={10} style={{ width: "50%" }}>
+              <Row>
+                <label htmlFor="fullname">F.I.SH</label>
+                <Input
+                  placeholder="F.I.SH"
+                  id={"fullname"}
+                  value={positionName}
+                  onChange={handleInputChange}
+                  size="large"
+                />
+              </Row>
+              <Row>
+                <label htmlFor="phone_number">Telefon raqam</label>
+                <Input
+                  placeholder="Telefon raqam..."
+                  id={"phone_number"}
+                  value={positionName}
+                  onChange={handleInputChange}
+                  size="large"
+                />
+              </Row>
+              <Row>
+                <label htmlFor="login">Login</label>
+                <Input
+                  placeholder="Login..."
+                  value={positionName}
+                  onChange={handleInputChange}
+                  id="login"
+                  size="large"
+                />
+              </Row>
+              <Row>
+                <label htmlFor="password">Parol</label>
+                <Input.Password
+                  placeholder="Parol..."
+                  iconRender={visible =>
+                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                  }
+                  onChange={handleInputChange}
+                  value={positionName}
+                  id="password"
+                  size="large"
+                />
+              </Row>
             </Flex>
-          </Form.Item>
+
+            <Flex vertical gap={10} style={{ width: "50%" }}>
+              <Row>
+                <label htmlFor="phone_number">Status</label>
+                <Select
+                  style={{ width: "100%" }}
+                  onChange={handleChange}
+                  options={[
+                    { value: "Faol", label: "Faol" },
+                    { value: "Nofaol", label: "Nofaol" },
+                  ]}
+                  size="large"
+                />
+              </Row>
+              <Row>
+                <label htmlFor="phone_number">Lavozim</label>
+                <Select
+                  style={{ width: "100%" }}
+                  onChange={handleChange}
+                  options={[
+                    { value: "admin", label: "Admin" },
+                    { value: "menejer", label: "Menejer" },
+                    { value: "foydalanuvchi", label: "Foydalanuvchi" },
+                  ]}
+                  size="large"
+                />
+              </Row>
+
+              <Row>
+                <label htmlFor="phone_number">Filiallar</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Please select"
+                  onChange={handleChange}
+                  options={options}
+                  size="large"
+                />
+              </Row>
+              <Row>
+                <label htmlFor="phone_number">Huquqlar</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Please select"
+                  onChange={handleChange}
+                  options={options}
+                  size="large"
+                />
+              </Row>
+            </Flex>
+          </Flex>
         </Form>
       </Modal>
     </>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Input, Modal, Space, Select, Divider } from "antd";
 import MockupCard from "@components/MockupCard";
 import { formatCardNumber } from "@utils/formatCardNumber";
-import { months1, years1 } from "./handlers";
+import { years, months, applyZeroMasking } from "./handlers";
 
 const BankCardAddModal: React.FC<{
   open: boolean;
@@ -42,13 +42,6 @@ const BankCardAddModal: React.FC<{
       ...prev,
       expiryYear: value,
     }));
-  };
-
-  const applyZeroMasking = (cardNumber: string): string => {
-    const maxCardLength = 16;
-    const numbersOnly = cardNumber.replace(/\D/g, "");
-    const paddedNumber = numbersOnly.padEnd(maxCardLength, "0");
-    return formatCardNumber(paddedNumber);
   };
 
   return (
@@ -94,7 +87,7 @@ const BankCardAddModal: React.FC<{
             placeholder="MM"
             value={expiryMonth ? expiryMonth : undefined}
             onChange={handleExpiryMonthChange}
-            options={months1}
+            options={months}
             style={{ width: "242px" }}
             size="large"
           />
@@ -102,7 +95,7 @@ const BankCardAddModal: React.FC<{
             placeholder="YY"
             value={expiryYear ? expiryYear : undefined}
             onChange={handleExpiryYearChange}
-            options={years1}
+            options={years}
             style={{ minWidth: "242px" }}
             size="large"
           />

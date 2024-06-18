@@ -2,24 +2,14 @@ import type { GetProp, TableProps } from "antd";
 
 type DataType = {
   id: number;
-  fullname: string;
-  access: {
-    is_enter: boolean;
-    is_action: boolean;
-    is_report: boolean;
-    is_excel: boolean;
-  };
-  access_branches: {
-    name: string;
-    key: string;
-  }[];
-  login: string;
-  password: string;
-  birthday: string;
+  position: string;
+  users_count: number;
+  settings: boolean;
+  reports: boolean;
+  card_binding: boolean;
+  access_branchs: { name: string; key: string }[];
   created_by_user: string;
   created_at: string;
-  updated_at: string;
-  position: string;
 };
 
 type typeColumnsType<T> = TableProps<T>["columns"];
