@@ -181,6 +181,7 @@ const CustomTable: React.FC = () => {
       dataSource={filteredData}
       pagination={{ pageSize: 50 }}
       scroll={{ x: true }}
+      bordered
     />
   );
 };

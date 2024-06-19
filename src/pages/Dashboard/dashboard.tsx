@@ -9,6 +9,8 @@ import { dashboardBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData
 import Breadcrumb from "@components/ui/Breadcrumbs";
 import ExportDropdown from "@components/ui/ExportDropdown";
 
+import LineChart from "@components/DashboardLineChart";
+
 export default function Component() {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,20 +26,27 @@ export default function Component() {
         <Breadcrumb breadcrumbs={dashboardBreadcrumbs} />
         <ExportDropdown />
       </Flex>
+      <div>
+        <LineChart />
+      </div>
       <div className="dashboard_card">
         <Flex justify="space-between" gap={20}>
           {isLoading ? (
-            <Fragment>
+            <>
               <CardStats />
               <CardStats />
               <CardStats />
-            </Fragment>
+            </>
           ) : (
             <>
               {Array.from({ length: 3 }).map((_, index) => (
                 <Card
                   key={index}
-                  style={{ maxWidth: 600, width: "100%", padding: "50px 0" }}
+                  style={{
+                    maxWidth: "calc(33.2% - 10px)",
+                    width: "100%",
+                    padding: "50px 0",
+                  }}
                 >
                   <Flex gap={20}>
                     <Skeleton loading active>

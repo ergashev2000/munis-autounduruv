@@ -1,7 +1,8 @@
-import { Breadcrumb, Flex } from "antd";
+import { Breadcrumb, Flex, Space } from "antd";
 import { EmployeesTable } from "@components/EmployeesTable";
 import { employeesBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import EmployeesModal from "@components/EmployeesModal/employeesModal";
+import ExportDropdown from "@components/ui/ExportDropdown";
 
 export default function Employees() {
   return (
@@ -12,7 +13,10 @@ export default function Employees() {
         align="center"
       >
         <Breadcrumb items={employeesBreadcrumbs} />
-        <EmployeesModal />
+        <Space>
+          <ExportDropdown />
+          <EmployeesModal />
+        </Space>
       </Flex>
       <EmployeesTable />
     </div>

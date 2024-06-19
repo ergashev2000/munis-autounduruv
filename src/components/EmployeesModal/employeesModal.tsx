@@ -4,12 +4,9 @@ import {
   Input,
   Modal,
   Form,
-  Checkbox,
   Flex,
   Typography,
-  Space,
   Row,
-  Col,
   Select,
   SelectProps,
 } from "antd";
@@ -84,6 +81,7 @@ const EmployeesModal: React.FC = () => {
         okText={"Tasdiqlash"}
         cancelText={"Bekor qilish"}
         confirmLoading={confirmLoading}
+        maskClosable={false}
       >
         <Form>
           <Typography.Title level={4}>
@@ -143,26 +141,28 @@ const EmployeesModal: React.FC = () => {
                   style={{ width: "100%" }}
                   onChange={handleChange}
                   options={[
-                    { value: "Faol", label: "Faol" },
-                    { value: "Nofaol", label: "Nofaol" },
+                    { value: "active", label: "Faol" },
+                    { value: "noactive", label: "Nofaol" },
                   ]}
                   size="large"
+                  defaultValue={["active"]}
                 />
               </Row>
               <Row>
-                <label htmlFor="phone_number">Lavozim</label>
+                <label htmlFor="position">Lavozim</label>
                 <Select
+                  id="position"
+                  defaultValue={["foydalanuvchi"]}
                   style={{ width: "100%" }}
                   onChange={handleChange}
                   options={[
+                    { value: "foydalanuvchi", label: "Foydalanuvchi" },
                     { value: "admin", label: "Admin" },
                     { value: "menejer", label: "Menejer" },
-                    { value: "foydalanuvchi", label: "Foydalanuvchi" },
                   ]}
                   size="large"
                 />
               </Row>
-
               <Row>
                 <label htmlFor="phone_number">Filiallar</label>
                 <Select

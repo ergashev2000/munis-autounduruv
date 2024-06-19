@@ -46,14 +46,13 @@ const items: MenuItem[] = [
   getItem("Sozlamalar", "sub2", <SettingOutlined />, [
     getItem("Lavozimlar", "3", <SafetyOutlined />, undefined, "/positions"),
     getItem(
-      "Shartnomachilar",
+      "Foydalanuvchilar",
       "4",
       <UserAddOutlined />,
       undefined,
       "/employees"
     ),
   ]),
-  getItem("Files", "9", <FileOutlined />, undefined, "/files"),
 ];
 
 const MainAside: React.FC = () => {

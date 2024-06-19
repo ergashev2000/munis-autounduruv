@@ -30,7 +30,10 @@ const data = [
 
 export default function Component() {
   return (
-    <Card title="Shartnomalar" style={{ maxWidth: 600, width: "100%" }}>
+    <Card
+      title="Shartnomalar"
+      style={{ maxWidth: "calc(33.2% - 10px)", width: "100%" }}
+    >
       <Flex justify="space-between" align="start" gap={20}>
         <div style={{ width: "100%" }}>
           {data.map(item => (
@@ -41,7 +44,7 @@ export default function Component() {
               key={item.id}
             >
               <h3 style={{ whiteSpace: "nowrap" }}>{item.title}</h3>
-              <hr/>
+              <hr />
               <p style={{ color: `${item.color}`, whiteSpace: "nowrap" }}>
                 {item.value}
               </p>
@@ -49,7 +52,7 @@ export default function Component() {
           ))}
         </div>
 
-        <div style={{ width: "250px" }}>
+        <div style={{ width: "240px" }}>
           <PieChat />
         </div>
       </Flex>

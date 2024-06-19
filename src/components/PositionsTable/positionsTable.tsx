@@ -139,7 +139,7 @@ const PositionsTable: React.FC = () => {
     {
       title: "ID",
       dataIndex: "order",
-      width: "5%",
+      width: "0.1%",
       render: (_, __, index: number) => {
         const currentPage = tableParams.pagination?.current ?? 1;
         const pageSize = tableParams.pagination?.pageSize ?? 10;
