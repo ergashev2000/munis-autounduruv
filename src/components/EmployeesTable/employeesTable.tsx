@@ -51,12 +51,10 @@ const PositionsTable: React.FC = () => {
 
   const handleEdit = (record: DataType) => {
     console.log("Edit record:", record);
-    // Add your edit logic here
   };
 
   const handleDelete = (id: number) => {
     console.log("Delete record with ID:", id);
-    // Add your delete logic here
   };
 
   const searchInput = useRef<InputRef | null>(null);

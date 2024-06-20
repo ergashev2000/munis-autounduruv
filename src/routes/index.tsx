@@ -1,7 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Dashboard, BankCards, Employees, Login, Positions } from "../pages";
+import {
+  Dashboard,
+  BankCards,
+  Employees,
+  Login,
+  Positions,
+  Calls,
+} from "../pages";
 
 import MainLayout from "../layouts/MainLayout";
+import { CallsForm } from "@components/CallsModal";
 
 const privataRoutes = [
   {
@@ -23,6 +31,10 @@ const privataRoutes = [
       {
         path: "/positions",
         element: <Positions />,
+      },
+      {
+        path: "/calls",
+        element: <Calls />,
       },
     ],
   },

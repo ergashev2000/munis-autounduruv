@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   UserOutlined,
-  FileOutlined,
+  PhoneOutlined,
   PieChartOutlined,
   SettingOutlined,
   CreditCardOutlined,
@@ -52,6 +52,7 @@ const items: MenuItem[] = [
       undefined,
       "/employees"
     ),
+    getItem("Qo'ng'iroqlar", "5", <PhoneOutlined />, undefined, "/calls"),
   ]),
 ];
 

@@ -44,3 +44,24 @@ export const positionsBreadcrumbs = [
     title: "Lavozimlar",
   },
 ];
+
+export const callsBreadcrumbs = [
+  {
+    title: <Link to={"/"}>Bosh sahifa</Link>,
+  },
+  {
+    title: "Qo'ng'iroqlar",
+  },
+];
+
+export const callsFormBreadcrumbs = [
+  {
+    title: <Link to={"/"}>Bosh sahifa</Link>,
+  },
+  {
+    title: <Link to={"/calls"}>Qo'ng'iroqlar</Link>,
+  },
+  {
+    title: "Qo'ng'iroqlar qo'shish",
+  },
+];
