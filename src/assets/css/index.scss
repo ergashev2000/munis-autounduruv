@@ -204,3 +204,27 @@ input::-webkit-inner-spin-button {
     box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
     border-radius: 8px;
 }
+
+.active-access {
+    background-color: rgba(78, 183, 78, 0.061);
+    border: 1px solid green;
+    width: 80px;
+    border-radius: 6px;
+    color: #433d3d;
+    font-weight: 600;
+    padding-block: 2px;
+    display: block;
+    text-align: center;
+}
+
+.disabled-access {
+    background-color: rgba(255, 0, 0, 0.094);
+    border: 1px solid red;
+    width: 80px;
+    font-weight: 600;
+    border-radius: 6px;
+    color: #433d3d;
+    padding-block: 2px;
+    display: block;
+    text-align: center;
+}

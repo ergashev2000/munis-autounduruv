@@ -1,11 +1,11 @@
-import { PositionsModal } from "@components/PositionsModal";
-import { PositionsTable } from "@components/PositionsTable";
+import PositionsModal from "@components/PositionsModal";
+import PositionsTable from "@components/PositionsTable";
 import { positionsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import { Breadcrumb, Flex } from "antd";
 
 export default function Positions() {
   return (
-    <div>
+    <>
       <Flex
         justify="space-between"
         align="center"
@@ -15,6 +15,6 @@ export default function Positions() {
         <PositionsModal />
       </Flex>
       <PositionsTable />
-    </div>
+    </>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Button, Layout } from "antd";
 
-import { MainAside } from "../components/MainAside";
+import MainAside from "../components/MainAside";
 import { Outlet } from "react-router-dom";
 
 const { Header } = Layout;

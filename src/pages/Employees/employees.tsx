@@ -1,7 +1,7 @@
 import { Breadcrumb, Flex, Space } from "antd";
-import { EmployeesTable } from "@components/EmployeesTable";
+import EmployeesTable from "@components/EmployeesTable";
 import { employeesBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
-import EmployeesModal from "@components/EmployeesModal/employeesModal";
+import EmployeesModal from "@components/EmployeesModal";
 import ExportDropdown from "@components/ui/ExportDropdown";
 
 export default function Employees() {

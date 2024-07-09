@@ -1,10 +1,10 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Card, Flex, Skeleton } from "antd";
 import Meta from "antd/es/card/Meta";
 
-import { CardStats } from "@components/CardStats";
-import { TableDashboard } from "@components/TableDashboard";
+import CardStats from "@components/CardStats";
+import TableDashboard from "@components/TableDashboard";
 import { dashboardBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import Breadcrumb from "@components/ui/Breadcrumbs";
 import ExportDropdown from "@components/ui/ExportDropdown";
@@ -19,7 +19,7 @@ export default function Component() {
       setIsLoading(true);
     }, 3000);
   }, []);
-  
+
   return (
     <div>
       <Flex justify="space-between">

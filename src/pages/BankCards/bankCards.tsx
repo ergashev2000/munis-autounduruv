@@ -1,10 +1,12 @@
-import { BankCardsTable } from "@components/BankCardsTable";
-import { Button, Flex, Space } from "antd";
+import { useState } from "react";
+
+import BankCardsTable from "@components/BankCardsTable";
 import { bankCardsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import BreadcrumbItem from "@components/ui/Breadcrumbs";
+import BankCardAddModal from "@components/BankCardAddModal";
+
+import { Button, Flex, Space } from "antd";
 import { PlusCircleOutlined, DownloadOutlined } from "@ant-design/icons";
-import { BankCardAddModal } from "@components/BankCardAddModal";
-import { useState } from "react";
 
 export default function Component() {
   const [confirmLoading, setConfirmLoading] = useState(false);
