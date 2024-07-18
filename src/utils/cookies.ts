@@ -1,8 +1,8 @@
 import Cookies from "js-cookie";
 
 //GET
-export const getAccessTokenFromCookie = (name: string): string => {
-  const cookieValue = Cookies.get(name);
+export const getAccessTokenFromCookie = (): string => {
+  const cookieValue = Cookies.get("accessToken");
   let accessToken: string = "";
 
   if (cookieValue) {
@@ -15,6 +15,24 @@ export const getAccessTokenFromCookie = (name: string): string => {
   }
 
   return accessToken;
+};
+
+export const getValueFromCookie = (
+  name: string
+): Record<string, boolean> | null => {
+  const cookieValue = Cookies.get(name);
+
+  if (cookieValue) {
+    try {
+      const parsedValue = JSON.parse(cookieValue);
+      return parsedValue;
+    } catch (error) {
+      console.error("Error parsing cookie value:", error);
+      return null;
+    }
+  } else {
+    return null;
+  }
 };
 
 //SET

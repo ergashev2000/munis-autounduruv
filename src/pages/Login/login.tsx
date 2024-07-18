@@ -1,6 +1,5 @@
 import React from "react";
 
-import axios from "axios";
 import {
   Formik,
   Form,
@@ -16,9 +15,10 @@ import {
   EyeInvisibleOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Input, Tooltip } from "antd";
+import { Button, Flex, Input, message, Tooltip } from "antd";
 
 import Logo from "../../assets/images/logo.png";
+import { useAuth } from "../../context/AuthContext";
 
 interface FormValues {
   username: string;
@@ -26,8 +26,8 @@ interface FormValues {
 }
 
 const initialValues: FormValues = {
-  username: "",
-  password: "",
+  username: "superadmin",
+  password: "test",
 };
 
 const validationSchema = Yup.object().shape({
@@ -40,14 +40,16 @@ const validationSchema = Yup.object().shape({
 });
 
 const Login: React.FC = () => {
+  const { login } = useAuth();
+  
   const handleSubmit = async (
     values: FormValues,
     actions: FormikHelpers<FormValues>
   ) => {
     try {
-      const response = await axios.post("/api/login", values);
-      console.log("Login success:", response.data);
+      await login(values.username, values.password);
     } catch (error) {
+      message.error("Login failed. Please check your credentials.");
       console.error("Login error:", error);
     } finally {
       actions.setSubmitting(false);
@@ -70,8 +72,8 @@ const Login: React.FC = () => {
         }}
       >
         <Flex vertical justify="center" align="center" gap={10}>
-          <img src={Logo} alt="Munis logo" style={{ width: "150px" }} />
-          <p style={{ fontSize: "18px" }}>Auto unduruv dasturiga kirish</p>
+          <img src={Logo} alt="Munis logo" style={{ width: "100px" }} />
+          <p style={{ fontSize: "14px" }}>Auto unduruv dasturiga kirish</p>
         </Flex>
         <Formik
           initialValues={initialValues}

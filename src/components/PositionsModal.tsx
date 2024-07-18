@@ -1,109 +1,128 @@
-import React, { useState } from "react";
-import { Button, Input, Modal, Form, Checkbox, Flex, Typography } from "antd";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Input, Modal, Form, Checkbox, Typography } from "antd";
+import { PositionsType } from "../types/PositionsType";
 
-const PositionsModal: React.FC = () => {
-  const [open, setOpen] = useState(false);
+interface Positions {
+  openModal: boolean;
+  setOpenModal: (value: boolean) => void;
+  onCreate?: (data: PositionsType) => void;
+  onUpdate?: (id: string | undefined, data: PositionsType) => void;
+  initialData?: PositionsType;
+  setInitialData?: ((data: PositionsType | undefined) => void) | undefined;
+}
+
+const PositionsModal: React.FC<Positions> = ({
+  openModal,
+  setOpenModal,
+  onCreate,
+  onUpdate,
+  initialData,
+  setInitialData,
+}) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
+  const [form] = Form.useForm();
 
-  const [positionName, setPositionName] = useState("");
-  const [checkboxValues, setCheckboxValues] = useState({
-    sozlanmalar: false,
-    adminHisoboti: false,
-    filialMenyusi: false,
-    kartaBoglash: false,
-    hisobotlar: false,
-  });
+  useEffect(() => {
+    if (openModal) {
+      if (initialData) {
+        form.setFieldsValue({
+          name: initialData.name,
+          sozlanmalar: initialData.settings,
+          adminHisoboti: initialData.reports,
+          filialMenyusi: initialData.cardActions,
+          kartaBoglash: initialData.dashboard,
+          hisobotlar: initialData.adminReports,
+        });
+      } else {
+        form.resetFields();
+      }
+    }
+  }, [initialData, openModal, form]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPositionName(e.target.value);
-  };
-
-  const handleCheckboxChange = (e: CheckboxChangeEvent) => {
-    setCheckboxValues({
-      ...checkboxValues,
-      [e.target.name!]: e.target.checked,
-    });
-  };
-
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
+  const handleOk = async () => {
+    try {
+      setConfirmLoading(true);
+      const values = await form.validateFields();
+      const obj: PositionsType = {
+        name: values.name,
+        settings: values.sozlanmalar,
+        dashboard: values.kartaBoglash,
+        reports: values.hisobotlar,
+        cardActions: values.filialMenyusi,
+        adminReports: values.adminHisoboti,
+      };
+      if (initialData && onUpdate) {
+        onUpdate(initialData?.id, obj);
+      } else if (onCreate) {
+        onCreate(obj);
+      }
+      setOpenModal(false);
+      form.resetFields();
+    } catch (error) {
+      console.error("Validation failed:", error);
+    } finally {
       setConfirmLoading(false);
-    }, 2000);
+    }
   };
+
+  const handleCancel = () => {
+    setOpenModal(false);
+    form.resetFields();
+  };
+
+  useEffect(() => {
+    if (!openModal && setInitialData) {
+      setInitialData(undefined);
+    }
+  }, [openModal, setInitialData]);
 
   return (
     <>
       <Modal
-        title="Lavozim qo'shish"
         centered
-        open={open}
-        onOk={() => handleOk()}
-        onCancel={() => setOpen(false)}
+        open={openModal}
+        onOk={handleOk}
+        onCancel={handleCancel}
         width={500}
-        okText={"Tasdiqlash"}
-        cancelText={"Bekor qilish"}
+        okText="Tasdiqlash"
+        cancelText="Bekor qilish"
         confirmLoading={confirmLoading}
       >
-        <Form layout="vertical">
-          <Form.Item label="Lavozim nomi" name="positionName">
-            <Input
-              placeholder="Lavozim nomi"
-              value={positionName}
-              onChange={handleInputChange}
-            />
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Lavozim nomi"
+            name="name"
+            rules={[
+              { required: true, message: "Please input the position name!" },
+            ]}
+          >
+            <Input placeholder="Lavozim nomi" />
           </Form.Item>
-
           <Form.Item>
             <Typography.Title level={5}>
               Qo'shimcha imkonyatlar
             </Typography.Title>
-            <Flex>
-              <Flex vertical gap={20} style={{ width: "50%" }}>
-                <Checkbox
-                  name="sozlanmalar"
-                  checked={checkboxValues.sozlanmalar}
-                  onChange={handleCheckboxChange}
-                >
-                  Sozlanmalar
-                </Checkbox>
-                <Checkbox
-                  name="adminHisoboti"
-                  checked={checkboxValues.adminHisoboti}
-                  onChange={handleCheckboxChange}
-                >
-                  Admin Hisoboti
-                </Checkbox>
-                <Checkbox
-                  name="filialMenyusi"
-                  checked={checkboxValues.filialMenyusi}
-                  onChange={handleCheckboxChange}
-                >
-                  Filial Menyusi
-                </Checkbox>
-              </Flex>
-              <Flex vertical gap={20} style={{ width: "50%" }}>
-                <Checkbox
-                  name="kartaBoglash"
-                  checked={checkboxValues.kartaBoglash}
-                  onChange={handleCheckboxChange}
-                >
-                  Karta Bog'lash
-                </Checkbox>
-                <Checkbox
-                  name="hisobotlar"
-                  checked={checkboxValues.hisobotlar}
-                  onChange={handleCheckboxChange}
-                >
-                  Hisobotlar
-                </Checkbox>
-              </Flex>
-            </Flex>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <div style={{ width: "50%" }}>
+                <Form.Item name="sozlanmalar" valuePropName="checked">
+                  <Checkbox>Sozlanmalar</Checkbox>
+                </Form.Item>
+                <Form.Item name="adminHisoboti" valuePropName="checked">
+                  <Checkbox>Admin Hisoboti</Checkbox>
+                </Form.Item>
+                <Form.Item name="filialMenyusi" valuePropName="checked">
+                  <Checkbox>Filial Menyusi</Checkbox>
+                </Form.Item>
+              </div>
+              <div style={{ width: "50%" }}>
+                <Form.Item name="kartaBoglash" valuePropName="checked">
+                  <Checkbox>Karta Bog'lash</Checkbox>
+                </Form.Item>
+                <Form.Item name="hisobotlar" valuePropName="checked">
+                  <Checkbox>Hisobotlar</Checkbox>
+                </Form.Item>
+              </div>
+            </div>
           </Form.Item>
         </Form>
       </Modal>

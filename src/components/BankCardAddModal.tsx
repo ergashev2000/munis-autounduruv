@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Input, Modal, Space, Select, Divider } from "antd";
+
 import MockupCard from "@components/MockupCard";
 import { formatCardNumber } from "@utils/formatCardNumber";
 import { years, months, applyZeroMasking } from "@utils/formatCardData";
+
+import { Input, Modal, Space, Select, Divider, Flex } from "antd";
 
 const BankCardAddModal: React.FC<{
   open: boolean;
@@ -14,8 +16,8 @@ const BankCardAddModal: React.FC<{
   const [cardDetails, setCardDetails] = useState({
     fullName: "",
     cardNumber: "",
-    expiryMonth: "",
-    expiryYear: "",
+    expiryMonth: `${new Date().getMonth() + 1}`,
+    expiryYear: `${new Date().getFullYear().toString().substring(2,4)}`,
   });
 
   const { fullName, cardNumber, expiryMonth, expiryYear } = cardDetails;
@@ -47,7 +49,7 @@ const BankCardAddModal: React.FC<{
   return (
     <Modal
       title="Yangi karta qo'shish"
-      visible={open}
+      open={open}
       onOk={handleOk}
       okText={"Kartani qo'shish"}
       confirmLoading={confirmLoading}
@@ -60,7 +62,7 @@ const BankCardAddModal: React.FC<{
         cardNumber={applyZeroMasking(cardNumber)}
         expiryDate={`${expiryMonth}/${expiryYear}`}
       />
-      <Divider />
+      <Divider>Karta ma'lumotlari</Divider>
       <Space
         direction="vertical"
         style={{ width: "100%", paddingBottom: "5px" }}
@@ -82,24 +84,24 @@ const BankCardAddModal: React.FC<{
           maxLength={19}
           style={{ width: "100%" }}
         />
-        <Space style={{ width: "100%" }}>
+        <Flex gap={5}>
           <Select
             placeholder="MM"
             value={expiryMonth ? expiryMonth : undefined}
             onChange={handleExpiryMonthChange}
             options={months}
-            style={{ width: "242px" }}
             size="large"
+            style={{ width: "50%" }}
           />
           <Select
             placeholder="YY"
             value={expiryYear ? expiryYear : undefined}
             onChange={handleExpiryYearChange}
             options={years}
-            style={{ minWidth: "242px" }}
             size="large"
+            style={{ width: "50%" }}
           />
-        </Space>
+        </Flex>
         <Input
           size="large"
           placeholder="Contract ID"

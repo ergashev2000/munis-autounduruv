@@ -14,7 +14,11 @@ interface Entity {
   productId?: string;
 }
 
-interface FetchOptions extends AxiosRequestConfig {}
+interface CustomFetchOptions extends AxiosRequestConfig {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
 
 interface FetchResult<T> {
   data: T[] | T | null;
@@ -32,7 +36,7 @@ interface FetchResult<T> {
 
 const useFetch = <T extends Entity>(
   url: string,
-  options?: FetchOptions
+  options?: CustomFetchOptions
 ): FetchResult<T> => {
   const [data, setData] = useState<T[] | T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,20 +50,23 @@ const useFetch = <T extends Entity>(
       if (!response) {
         throw new Error("Empty response data");
       }
+
       setData(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  }, [url, options]);
+  }, [options, url]);
+  
 
   const fetchById = useCallback(
     async (id: string) => {
       setLoading(true);
       try {
         const response = await getById<T>(`${url}`, id);
-        
+        console.log();
+
         if (!response) {
           throw new Error("Empty response data");
         }
@@ -92,7 +99,7 @@ const useFetch = <T extends Entity>(
         setError(err instanceof Error ? err.message : "An error occurred");
       }
     },
-    [url, options, refetch]
+    [url, options]
   );
 
   const updateData = useCallback(
@@ -127,7 +134,7 @@ const useFetch = <T extends Entity>(
         setError(err instanceof Error ? err.message : "An error occurred");
       }
     },
-    [url, options, refetch]
+    [url, options]
   );
 
   const deleteData = useCallback(
@@ -144,7 +151,7 @@ const useFetch = <T extends Entity>(
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, []);
 
   return {
     data,

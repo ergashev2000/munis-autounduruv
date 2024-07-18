@@ -1,6 +1,6 @@
+import { ToastContainer } from "react-toastify";
 import { RouterProvider } from "react-router-dom";
 import routes from "./routes/MainRoute";
-import { ToastContainer } from "react-toastify";
 
 export default function App() {
   return (

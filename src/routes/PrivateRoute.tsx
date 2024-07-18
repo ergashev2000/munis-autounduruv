@@ -4,21 +4,21 @@ import { Navigate } from "react-router-dom";
 
 interface PrivateRouteProps {
   element: JSX.Element;
-  path: string;
+  permission: boolean | undefined;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ element, path }) => {
-  const { user } = useAuth();
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ element, permission }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     return <Navigate to="/auth/login" />;
   }
-  console.log(path);
 
-  const canAccessPage = user?.allowPages?.includes(path);
-  console.log(canAccessPage);
-
-  if (!canAccessPage) {
+  if (!permission) {
     return <Navigate to="/unauthorized" />;
   }
 

@@ -59,9 +59,25 @@ export const callsFormBreadcrumbs = [
     title: <Link to={"/"}>Bosh sahifa</Link>,
   },
   {
-    title: <Link to={"/calls"}>Qo'ng'iroqlar</Link>,
+    title: "Audio & SMS qo'shish",
+  },
+];
+
+export const whiteListBreadcrumbs = [
+  {
+    title: <Link to={"/"}>Bosh sahifa</Link>,
   },
   {
-    title: "Qo'ng'iroqlar qo'shish",
+    title: "Oq list",
+  },
+];
+
+
+export const branchsBreadcrumbs = [
+  {
+    title: <Link to={"/"}>Bosh sahifa</Link>,
+  },
+  {
+    title: "Filiallar",
   },
 ];

@@ -5,3 +5,8 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.rhap_container{
+  border-radius: 16px;
+  box-shadow: none!important;
+}

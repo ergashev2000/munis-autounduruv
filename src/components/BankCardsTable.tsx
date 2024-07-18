@@ -1,9 +1,9 @@
-import React, { useState, useRef } from "react";
-import { Table, Input, Button, Space, InputRef } from "antd";
+import React, { useState, useEffect } from "react";
+import { Table, Input, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import type { ColumnsType } from "antd/es/table";
-import { FilterDropdownProps } from "antd/es/table/interface";
-import moment from "moment";
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import { SorterResult } from "antd/es/table/interface";
+import axios from "axios";
 
 interface TableData {
   key: string;
@@ -15,174 +15,123 @@ interface TableData {
   filial: string;
 }
 
-const data: TableData[] = [
-  {
-    key: "1",
-    fullName: "John Doe",
-    contractId: "C12345",
-    phoneNumber: "+99890 123 45 67",
-    cardNumber: "4111 1111 1111 1111",
-    cardExpiryDate: "12/24",
-    filial: "Olmaliq",
-  },
-];
-
 const CustomTable: React.FC = () => {
-  const [searchText, setSearchText] = useState<string>("");
-  const [searchedColumn, setSearchedColumn] = useState<string>("");
-  const searchInput = useRef<InputRef>(null);
-
-  const handleSearch = (
-    selectedKeys: string[],
-    confirm: () => void,
-    dataIndex: keyof TableData
-  ) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex.toString());
-  };
-
-  const handleReset = (clearFilters: (() => void) | undefined) => {
-    if (clearFilters) {
-      clearFilters();
-      setSearchText("");
-    }
-  };
-
-  const getColumnSearchProps = (
-    dataIndex: keyof TableData,
-    placeholder: string
-  ) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }: FilterDropdownProps) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          ref={searchInput}
-          placeholder={placeholder}
-          value={selectedKeys[0]}
-          onChange={e =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearch(selectedKeys as string[], confirm, dataIndex)
-          }
-          style={{ width: 188, marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            onClick={() =>
-              handleSearch(selectedKeys as string[], confirm, dataIndex)
-            }
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Search
-          </Button>
-          <Button
-            onClick={() => handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
-            Reset
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered: boolean) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilterDropdownVisibleChange: (visible: boolean) => {
-      if (visible && searchInput.current) {
-        setTimeout(() => searchInput?.current?.select(), 100);
-      }
-    },
-    render: (text: string) =>
-      searchedColumn === dataIndex.toString() ? (
-        <span style={{ backgroundColor: "#ffc069" }}>{text}</span>
-      ) : (
-        text
-      ),
+  const [data, setData] = useState<TableData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    current: 1,
+    pageSize: 50,
   });
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+    fetchData();
+  }, [pagination.current, pagination.pageSize, searchTerm]);
+
+  const fetchData = async (
+    sortField: string | null = null,
+    sortOrder: string | null = null
+  ) => {
+    setLoading(true);
+
+    try {
+      const params: Record<string, any> = {
+        sortField,
+        sortOrder,
+        searchTerm,
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+      };
+
+      const response = await axios.get("/api/data", {
+        params,
+      });
+      setData(response.data.items);
+      setPagination(prev => ({
+        ...prev,
+        total: response.data.totalCount,
+      }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setData([]);
+    }
+    setLoading(false);
+  };
+
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    sorter: SorterResult<TableData> | SorterResult<TableData>[]
+  ) => {
+    const sortField: string | null = Array.isArray(sorter)
+      ? (sorter[0]?.field as string)
+      : (sorter?.field as string);
+    const sortOrder: string | null = Array.isArray(sorter)
+      ? sorter[0]?.order ?? null
+      : sorter?.order ?? null;
+
+    setPagination(pagination);
+    fetchData(sortField, sortOrder);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPagination({ ...pagination, current: 1 });
+  };
 
   const columns: ColumnsType<TableData> = [
     {
       title: "Ism va familiya",
       dataIndex: "fullName",
       key: "fullName",
-      ...getColumnSearchProps("fullName", "Search Full Name"),
     },
     {
       title: "Kontrakt ID",
       dataIndex: "contractId",
       key: "contractId",
-      ...getColumnSearchProps("contractId", "Search Contract ID"),
     },
     {
       title: "Telefon raqam",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
-      ...getColumnSearchProps("phoneNumber", "Search Phone Number"),
     },
     {
       title: "Karta raqami",
       dataIndex: "cardNumber",
       key: "cardNumber",
-      ...getColumnSearchProps("cardNumber", "Search Card Number"),
     },
     {
       title: "Muddati",
       dataIndex: "cardExpiryDate",
       key: "cardExpiryDate",
-      render: (text: string) => moment(text, "MM/YY").format("MM/YY"),
-      sorter: (a: TableData, b: TableData) =>
-        moment(a.cardExpiryDate, "MM/YY").unix() -
-        moment(b.cardExpiryDate, "MM/YY").unix(),
     },
     {
       title: "Filial",
       dataIndex: "filial",
       key: "filial",
-      filters: [
-        { text: "Farg'ona", value: "Farg'ona" },
-        { text: "Olmaliq", value: "Olmaliq" },
-      ],
-      onFilter: (
-        value: string | number | boolean | bigint | undefined,
-        record: TableData
-      ) => {
-        if (
-          typeof value === "string" ||
-          typeof value === "number" ||
-          typeof value === "boolean"
-        ) {
-          return record.filial === value.toString();
-        }
-        return false;
-      },
     },
   ];
 
-  const filteredData = searchText
-    ? data.filter(item =>
-        Object.values(item).some(value =>
-          value?.toString().toLowerCase().includes(searchText.toLowerCase())
-        )
-      )
-    : data;
   return (
-    <Table<TableData>
-      columns={columns}
-      dataSource={filteredData}
-      pagination={{ pageSize: 50 }}
-      scroll={{ x: true }}
-      bordered
-    />
+    <>
+      <Space style={{ marginBottom: 16 }}>
+        <Input
+          placeholder="Search"
+          value={searchTerm}
+          onChange={e => handleSearch(e.target.value)}
+          style={{ width: 400 }}
+          prefix={<SearchOutlined />}
+        />
+      </Space>
+      <Table<TableData>
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        pagination={pagination}
+        onChange={handleTableChange}
+        scroll={{ x: true }}
+        bordered
+      />
+    </>
   );
 };
 

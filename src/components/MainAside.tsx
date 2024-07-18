@@ -8,6 +8,10 @@ import {
   CreditCardOutlined,
   UserAddOutlined,
   SafetyOutlined,
+  CopyOutlined,
+  PaperClipOutlined,
+  SnippetsOutlined,
+  BranchesOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 
@@ -33,36 +37,76 @@ function getItem(
   };
 }
 
-const items: MenuItem[] = [
-  getItem("Dashboard", "1", <PieChartOutlined />, undefined, "/dashboard"),
-  getItem("Amallar bajarish", "sub1", <UserOutlined />, [
-    getItem(
-      "Plastik kartalar",
-      "2",
-      <CreditCardOutlined />,
-      undefined,
-      "/credit-card"
-    ),
-  ]),
-  getItem("Sozlamalar", "sub2", <SettingOutlined />, [
-    getItem("Lavozimlar", "3", <SafetyOutlined />, undefined, "/positions"),
-    getItem(
-      "Foydalanuvchilar",
-      "4",
-      <UserAddOutlined />,
-      undefined,
-      "/employees"
-    ),
-    getItem("Qo'ng'iroqlar", "5", <PhoneOutlined rotate={90}/>, undefined, "/calls"),
-  ]),
-];
-
 const MainAside: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const location = useLocation();
-
   const { user } = useAuth();
+  
+  const items: MenuItem[] = [
+    getItem("Dashboard", "1", <PieChartOutlined />, undefined, "/dashboard"),
+    user?.pages?.settings
+      ? getItem("Sozlamalar", "sub2", <SettingOutlined />, [
+          getItem(
+            "Lavozimlar",
+            "3",
+            <SafetyOutlined />,
+            undefined,
+            "/positions"
+          ),
+          getItem(
+            "Foydalanuvchilar",
+            "4",
+            <UserAddOutlined />,
+            undefined,
+            "/employees"
+          ),
+          getItem(
+            "Qo'ng'iroqlar",
+            "5",
+            <PhoneOutlined rotate={90} />,
+            undefined,
+            "/calls"
+          ),
+          getItem("Oq list", "6", <CopyOutlined />, undefined, "/white-list"),
+          getItem(
+            "Filiallar",
+            "7",
+            <BranchesOutlined />,
+            undefined,
+            "/branchs"
+          ),
+          getItem(
+            "Media fayllar",
+            "8",
+            <PaperClipOutlined />,
+            undefined,
+            "/media"
+          ),
+        ])
+      : undefined,
+    user?.pages?.cardActions
+      ? getItem("Amallar bajarish", "sub1", <UserOutlined />, [
+          getItem(
+            "Plastik kartalar",
+            "2",
+            <CreditCardOutlined />,
+            undefined,
+            "/credit-card"
+          ),
+        ])
+      : undefined,
+    user?.pages.adminReports &&
+      getItem("Hisobotlar", "8", <UserOutlined />, [
+        getItem(
+          "Xodimlar hisoboti",
+          "9",
+          <SnippetsOutlined />,
+          undefined,
+          "/customer-reports"
+        ),
+      ]),
+  ].filter((item): item is MenuItem => !!item);
 
   const getDefaultSelectedKey = (path: string) => {
     for (const item of items) {
@@ -112,7 +156,7 @@ const MainAside: React.FC = () => {
         openKeys={openKeys}
         onOpenChange={keys => setOpenKeys(keys as string[])}
       >
-        {items.map(item => {
+         {items.map(item => {
           if (item.children) {
             return (
               <Menu.SubMenu key={item.key} title={item.label} icon={item.icon}>
