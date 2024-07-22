@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-import BankCardsTable from "@components/BankCardsTable";
 import { bankCardsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
+import BankCardsTable from "@components/BankCardsTable";
 import BreadcrumbItem from "@components/ui/Breadcrumbs";
 import BankCardAddModal from "@components/BankCardAddModal";
 
 import { Button, Flex, Space } from "antd";
 import { PlusCircleOutlined, DownloadOutlined } from "@ant-design/icons";
 
-export default function Component() {
+export default function BankCards() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
   const [open, setOpen] = useState(false);

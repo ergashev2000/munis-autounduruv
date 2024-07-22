@@ -1,4 +1,4 @@
-export type PositionsType = {
+export type PositionType = {
   id?: string | undefined;
   name: string;
   cardActions: boolean;

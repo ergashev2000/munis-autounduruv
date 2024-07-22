@@ -17,8 +17,8 @@ import {
 } from "@ant-design/icons";
 import { Button, Flex, Input, message, Tooltip } from "antd";
 
-import Logo from "../../assets/images/logo.png";
-import { useAuth } from "../../context/AuthContext";
+import Logo from "../assets/images/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 interface FormValues {
   username: string;
@@ -41,7 +41,7 @@ const validationSchema = Yup.object().shape({
 
 const Login: React.FC = () => {
   const { login } = useAuth();
-  
+
   const handleSubmit = async (
     values: FormValues,
     actions: FormikHelpers<FormValues>

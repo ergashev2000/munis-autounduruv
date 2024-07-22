@@ -13,11 +13,12 @@ import {
   SnippetsOutlined,
   BranchesOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Button, Flex, Layout, Menu } from "antd";
 
 import { MenuItem } from "../types/MainAside";
 import Logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
+import { LogOut } from "lucide-react";
 
 const { Sider } = Layout;
 
@@ -41,12 +42,12 @@ const MainAside: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const location = useLocation();
-  const { user } = useAuth();
-  
+  const { user, logout } = useAuth();
+
   const items: MenuItem[] = [
     getItem("Dashboard", "1", <PieChartOutlined />, undefined, "/dashboard"),
     user?.pages?.settings
-      ? getItem("Sozlamalar", "sub2", <SettingOutlined />, [
+      ? getItem("Sozlamalar", "2", <SettingOutlined />, [
           getItem(
             "Lavozimlar",
             "3",
@@ -74,7 +75,7 @@ const MainAside: React.FC = () => {
             "7",
             <BranchesOutlined />,
             undefined,
-            "/branchs"
+            "/branches"
           ),
           getItem(
             "Media fayllar",
@@ -86,10 +87,10 @@ const MainAside: React.FC = () => {
         ])
       : undefined,
     user?.pages?.cardActions
-      ? getItem("Amallar bajarish", "sub1", <UserOutlined />, [
+      ? getItem("Amallar bajarish", "9", <UserOutlined />, [
           getItem(
             "Plastik kartalar",
-            "2",
+            "10",
             <CreditCardOutlined />,
             undefined,
             "/credit-card"
@@ -97,10 +98,10 @@ const MainAside: React.FC = () => {
         ])
       : undefined,
     user?.pages.adminReports &&
-      getItem("Hisobotlar", "8", <UserOutlined />, [
+      getItem("Hisobotlar", "11", <UserOutlined />, [
         getItem(
           "Xodimlar hisoboti",
-          "9",
+          "12",
           <SnippetsOutlined />,
           undefined,
           "/customer-reports"
@@ -144,38 +145,49 @@ const MainAside: React.FC = () => {
       onCollapse={value => setCollapsed(value)}
       style={{ height: "100vh", position: "sticky", top: 0, zIndex: 1 }}
     >
-      <Link to={"/"}>
-        <div className="main-logo">
-          <img src={Logo} alt="Logo" width={50} height={50} />
-        </div>
-      </Link>
-      <Menu
-        theme="dark"
-        defaultSelectedKeys={[defaultSelectedKey]}
-        mode="inline"
-        openKeys={openKeys}
-        onOpenChange={keys => setOpenKeys(keys as string[])}
-      >
-         {items.map(item => {
-          if (item.children) {
-            return (
-              <Menu.SubMenu key={item.key} title={item.label} icon={item.icon}>
-                {item.children.map(subItem => (
-                  <Menu.Item key={subItem.key} icon={subItem.icon}>
-                    <Link to={subItem.path || ""}>{subItem.label}</Link>
+      <Flex vertical justify="space-between" style={{ height: "100%" }}>
+        <div>
+          <Link to={"/"}>
+            <div className="main-logo">
+              <img src={Logo} alt="Logo" width={50} height={50} />
+            </div>
+          </Link>
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={[defaultSelectedKey]}
+            mode="inline"
+            openKeys={openKeys}
+            onOpenChange={keys => setOpenKeys(keys as string[])}
+          >
+            {items.map(item => {
+              if (item.children) {
+                return (
+                  <Menu.SubMenu
+                    key={item.key}
+                    title={item.label}
+                    icon={item.icon}
+                  >
+                    {item.children.map(subItem => (
+                      <Menu.Item key={subItem.key} icon={subItem.icon}>
+                        <Link to={subItem.path || ""}>{subItem.label}</Link>
+                      </Menu.Item>
+                    ))}
+                  </Menu.SubMenu>
+                );
+              } else {
+                return (
+                  <Menu.Item key={item.key} icon={item.icon}>
+                    <Link to={item.path || ""}>{item.label}</Link>
                   </Menu.Item>
-                ))}
-              </Menu.SubMenu>
-            );
-          } else {
-            return (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <Link to={item.path || ""}>{item.label}</Link>
-              </Menu.Item>
-            );
-          }
-        })}
-      </Menu>
+                );
+              }
+            })}
+          </Menu>
+        </div>
+        <Button danger onClick={logout} type="primary" style={{margin: "20px auto"}}>
+          <LogOut size={18} rotate={45} /> Chiqish
+        </Button>
+      </Flex>
     </Sider>
   );
 };

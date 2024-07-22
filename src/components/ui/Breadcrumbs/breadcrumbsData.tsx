@@ -32,7 +32,7 @@ export const employeesBreadcrumbs = [
     title: <Link to={"/"}>Bosh sahifa</Link>,
   },
   {
-    title: "Shartnomachilar",
+    title: "Foydalanuvchilar",
   },
 ];
 

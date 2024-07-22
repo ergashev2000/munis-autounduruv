@@ -1,38 +1,83 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
 
 import { Table, Button, Space, Select, Flex } from "antd";
-import type { TableColumnsType, TablePaginationConfig } from "antd";
+import type { TableColumnsType, TableProps } from "antd";
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
   CloseCircleOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import CallsAddModal from "./CallsAddModal";
-import AudioFileAdd from "./AudioFileAdd";
-import { Plus, PlusCircle } from "lucide-react";
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  clientCount: number;
-  type: string;
-  dueDays: number;
-  deadline: string;
-  status: string;
-  actions?: string;
-}
+import { CallSettings } from "../types/CallSettingsTypes";
+import useFetch from "../hooks/useFetch";
+import { debounce } from "lodash";
+import { PaginatedData } from "../types/PaginatedType";
+import CallsAddModal from "./CallsAddModal";
 
 const CallsTable: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [initialId, setInitialId] = useState<CallSettings | null>(null);
   const [tableParams, setTableParams] = useState({
     pagination: {
-      current: 1,
+      current: initialPage,
       pageSize: 10,
-    } as TablePaginationConfig,
+    },
   });
 
-  const columns: TableColumnsType<DataType> = [
+  const { data, loading } = useFetch("/calls", {
+    search: searchText,
+    page: tableParams.pagination.current,
+    pageSize: tableParams.pagination.pageSize,
+  });
+
+  const handleSearchChange = debounce((value: string) => {
+    setSearchText(value);
+  }, 100);
+
+  const handleEdit = (record: CallSettings) => {
+    setInitialId(record);
+    setOpenModal(true);
+  };
+
+  const handleTableChange: TableProps<CallSettings>["onChange"] =
+    pagination => {
+      const newPagination = {
+        current: pagination?.current || 1,
+        pageSize: pagination?.pageSize || 10,
+      };
+
+      setTableParams({
+        pagination: newPagination,
+      });
+
+      navigate({
+        pathname: location.pathname,
+        search: createSearchParams({
+          page: newPagination.current.toString(),
+        }).toString(),
+      });
+    };
+
+  useEffect(() => {
+    if (tableParams.pagination.current > 1) {
+      navigate({
+        pathname: location.pathname,
+        search: createSearchParams({
+          page: tableParams.pagination.current.toString(),
+        }).toString(),
+      });
+    }
+  }, [tableParams.pagination, navigate, location.pathname]);
+
+  const columns: TableColumnsType<CallSettings> = [
     {
       title: "ID",
       dataIndex: "order",
@@ -57,7 +102,7 @@ const CallsTable: React.FC = () => {
     },
     {
       title: "Qarzdor kunlar",
-      dataIndex: "dueDays",
+      dataIndex: "minCurrentDebt",
       width: "10%",
     },
     {
@@ -117,49 +162,37 @@ const CallsTable: React.FC = () => {
     },
   ];
 
-  const data: DataType[] = [
-    {
-      key: "1",
-      name: "Yashil ro'yhat",
-      type: "Oq",
-      dueDays: 30,
-      deadline: "01.01.2024",
-      status: "Faol",
-      clientCount: 210,
-    },
-    {
-      key: "2",
-      name: "Yashil ro'yhat",
-      type: "Oq",
-      dueDays: 30,
-      deadline: "01.01.2024",
-      status: "Faol",
-      clientCount: 102,
-    },
-  ];
-
-  const handleTableChange = (pagination: TablePaginationConfig) => {
-    setTableParams({
-      ...tableParams,
-      pagination,
-    });
-  };
-
   return (
     <>
+      <CallsAddModal open={openModal} setOpen={setOpenModal} />
       <Flex justify="end" gap={60} style={{ marginBottom: "20px" }}>
         <Space>
           <Button>
             <DownloadOutlined /> Export
           </Button>
-          <CallsAddModal />
+          <Button type="primary" onClick={() => setOpenModal(true)}>
+            Qo'ng'iroqlar qo'shish
+          </Button>
         </Space>
       </Flex>
       <Table
+        dataSource={
+          Array.isArray(data)
+            ? data
+            : (data as PaginatedData<CallSettings>)?.data
+        }
+        pagination={
+          tableParams.pagination &&
+          (data as PaginatedData<CallSettings>)?.pageCount
+            ? {
+                ...tableParams.pagination,
+                total: (data as PaginatedData<CallSettings>)?.total || 0,
+              }
+            : false
+        }
+        loading={loading}
         bordered
         columns={columns}
-        dataSource={data}
-        pagination={tableParams.pagination}
         onChange={handleTableChange}
       />
     </>

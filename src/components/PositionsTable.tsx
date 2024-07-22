@@ -6,13 +6,13 @@ import { FilePenLine, Trash2 } from "lucide-react";
 import { AccessIcon, NotAccessIcon } from "../assets/icons/svgs";
 import PositionsModal from "./PositionsModal";
 import useFetch from "../hooks/useFetch";
-import { PositionsType } from "../types/PositionsType";
+import { PositionType } from "../types/PositionsType";
 import { debounce } from "lodash";
 
 const PositionsTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [initialData, setInitialData] = useState<PositionsType>();
+  const [initialData, setInitialData] = useState<PositionType>();
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
@@ -20,22 +20,18 @@ const PositionsTable: React.FC = () => {
     },
   });
 
-  const { data, loading, createData, updateData, deleteData, refetch } =
-    useFetch<PositionsType>("/positions", {
+  const { data, loading, createData, updateData, deleteData } =
+    useFetch<PositionType>("/positions", {
       search: searchText,
       page: tableParams.pagination.current,
       pageSize: tableParams.pagination.pageSize,
     });
 
-  useEffect(() => {
-    refetch();
-  }, [searchText]);
-
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);
   }, 100);
 
-  const handleEdit = (record: PositionsType) => {
+  const handleEdit = (record: PositionType) => {
     setInitialData(record);
     setOpenModal(true);
   };
@@ -52,7 +48,7 @@ const PositionsTable: React.FC = () => {
     }
   };
 
-  const handleTableChange: TableProps<PositionsType>["onChange"] =
+  const handleTableChange: TableProps<PositionType>["onChange"] =
     pagination => {
       setTableParams({
         pagination: {
@@ -62,7 +58,7 @@ const PositionsTable: React.FC = () => {
       });
     };
 
-  const columns: ColumnsType<PositionsType> = [
+  const columns: ColumnsType<PositionType> = [
     {
       title: "№",
       dataIndex: "order",
@@ -140,7 +136,7 @@ const PositionsTable: React.FC = () => {
     },
   ];
 
-  const handleCreate = async (newData: PositionsType) => {
+  const handleCreate = async (newData: PositionType) => {
     try {
       await createData(newData);
       setOpenModal(false);
@@ -151,7 +147,7 @@ const PositionsTable: React.FC = () => {
 
   const handleUpdate = async (
     id: string | undefined,
-    updatedData: PositionsType
+    updatedData: PositionType
   ) => {
     try {
       if (id) {

@@ -1,15 +1,14 @@
 import { BranchsType } from "./BranchsType";
 
-export type EmployeesType = {
-  id?: string;
+export type UsersType = {
+  id: string;
   username: string;
   fullName: string;
   phone: string;
+  positionId: string;
   status: boolean;
-  positionId: string | null;
   action: boolean;
   excel: boolean;
-  branches: BranchsType[];
-  position?: string | null;
-  password?: string;
-};
+  userBranches: BranchsType[];
+  position: string;
+}

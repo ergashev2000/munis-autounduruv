@@ -8,6 +8,7 @@ import {
   GetAllParams,
 } from "../services/api/crudApi";
 import { AxiosRequestConfig } from "axios";
+import { message } from "antd";
 
 interface Entity {
   id?: string;
@@ -20,8 +21,15 @@ interface CustomFetchOptions extends AxiosRequestConfig {
   pageSize?: number;
 }
 
+interface PaginatedData<T> {
+  pageCount: number;
+  currentPage: number;
+  total: number;
+  data: T[];
+}
+
 interface FetchResult<T> {
-  data: T[] | T | null;
+  data: PaginatedData<T> | T | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -38,15 +46,18 @@ const useFetch = <T extends Entity>(
   url: string,
   options?: CustomFetchOptions
 ): FetchResult<T> => {
-  const [data, setData] = useState<T[] | T | null>(null);
+  const [data, setData] = useState<PaginatedData<T> | T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await getAll<T[]>(url, options as GetAllParams);
-      
+      const response = await getAll<PaginatedData<T>>(
+        url,
+        options as GetAllParams
+      );
+
       if (!response) {
         throw new Error("Empty response data");
       }
@@ -58,14 +69,12 @@ const useFetch = <T extends Entity>(
       setLoading(false);
     }
   }, [options, url]);
-  
 
   const fetchById = useCallback(
     async (id: string) => {
       setLoading(true);
       try {
         const response = await getById<T>(`${url}`, id);
-        console.log();
 
         if (!response) {
           throw new Error("Empty response data");
@@ -91,15 +100,13 @@ const useFetch = <T extends Entity>(
         if (!response) {
           throw new Error("Failed to create data!");
         }
-        setData(prevData =>
-          Array.isArray(prevData) ? [...prevData, response] : response
-        );
         refetch();
       } catch (err) {
+        message.error(err instanceof Error ? err.message : "An error occurred");
         setError(err instanceof Error ? err.message : "An error occurred");
       }
     },
-    [url, options]
+    [url, options, refetch]
   );
 
   const updateData = useCallback(
@@ -113,28 +120,12 @@ const useFetch = <T extends Entity>(
         if (!response) {
           throw new Error("Failed to update data!");
         }
-        setData(prevData => {
-          if (Array.isArray(prevData)) {
-            return prevData.map(item =>
-              item.id === idOrProductId || item.productId === idOrProductId
-                ? { ...item, ...response }
-                : item
-            );
-          } else if (
-            prevData &&
-            (prevData.id === idOrProductId ||
-              prevData.productId === idOrProductId)
-          ) {
-            return { ...prevData, ...response };
-          }
-          return prevData;
-        });
         refetch();
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       }
     },
-    [url, options]
+    [url, options, refetch]
   );
 
   const deleteData = useCallback(
@@ -151,7 +142,7 @@ const useFetch = <T extends Entity>(
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [options?.search]);
 
   return {
     data,

@@ -1,27 +1,37 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Input, message, Popconfirm, Space, Table } from "antd";
-import type { InputRef, TableProps } from "antd";
-import { ColumnType, ColumnsType } from "antd/es/table";
-import { AccessIcon, NotAccessIcon } from "../assets/icons/svgs";
-import { DataType, TableParams } from "../types/EmployeesTable";
-import { FilePenLine, Trash2 } from "lucide-react";
-import { PositionsType } from "types/PositionsType";
-import useFetch from "../hooks/useFetch";
+import React, { useState, useEffect } from "react";
 import { debounce } from "lodash";
+import { useLocation, useNavigate, createSearchParams } from "react-router-dom";
+import { Button, Flex, Input, Popconfirm, Space } from "antd";
+import Table, { ColumnsType } from "antd/es/table";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { FilePenLine, Trash2 } from "lucide-react";
+import type { TableProps } from "antd";
 
-const PositionsTable: React.FC = () => {
+import { PaginatedData } from "../types/PaginatedType";
+import { EmployeesType } from "../types/EmployeesType";
+import useFetch from "../hooks/useFetch";
+import EmployeesModal from "./EmployeesModal";
+
+import { AccessIcon, NotAccessIcon } from "../assets/icons/svgs";
+
+const EmployeesTable: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+
   const [openModal, setOpenModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [initialData, setInitialData] = useState<PositionsType>();
+  const [initialData, setInitialData] = useState<EmployeesType | null>(null);
   const [tableParams, setTableParams] = useState({
     pagination: {
-      current: 1,
+      current: initialPage,
       pageSize: 10,
     },
   });
 
-  const { data, loading, createData, updateData, deleteData, refetch } =
-    useFetch<PositionsType>("/positions", {
+  const { data, loading, createData, updateData, deleteData, error } =
+    useFetch<EmployeesType>("/users", {
       search: searchText,
       page: tableParams.pagination.current,
       pageSize: tableParams.pagination.pageSize,
@@ -31,38 +41,47 @@ const PositionsTable: React.FC = () => {
     setSearchText(value);
   }, 100);
 
-  const handleEdit = (record: PositionsType) => {
+  const handleEdit = (record: EmployeesType) => {
     setInitialData(record);
     setOpenModal(true);
   };
 
-  const handleDelete = async (id: string | undefined) => {
-    try {
-      if (id) {
-        await deleteData(id);
-      } else {
-        message.error("O'chirishda muommo bor!");
-      }
-    } catch (error) {
-      console.error("Failed to delete:", error);
-    }
-  };
-
-  const handleTableChange: TableProps<PositionsType>["onChange"] =
+  const handleTableChange: TableProps<EmployeesType>["onChange"] =
     pagination => {
+      const newPagination = {
+        current: pagination?.current || 1,
+        pageSize: pagination?.pageSize || 10,
+      };
+
       setTableParams({
-        pagination: {
-          current: pagination?.current || 1,
-          pageSize: pagination?.pageSize || 10,
-        },
+        pagination: newPagination,
+      });
+
+      navigate({
+        pathname: location.pathname,
+        search: createSearchParams({
+          page: newPagination.current.toString(),
+        }).toString(),
       });
     };
 
-  const columns: ColumnsType<DataType> = [
+  useEffect(() => {
+    if (tableParams.pagination.current > 1) {
+      navigate({
+        pathname: location.pathname,
+        search: createSearchParams({
+          page: tableParams.pagination.current.toString(),
+        }).toString(),
+      });
+    }
+  }, [tableParams.pagination, navigate, location.pathname]);
+
+  const columns: ColumnsType<EmployeesType> = [
     {
-      title: "ID",
+      title: "№",
       dataIndex: "order",
-      width: "0%",
+      width: "0.1%",
+      align: "center",
       render: (_, __, index: number) => {
         const currentPage = tableParams.pagination?.current ?? 1;
         const pageSize = tableParams.pagination?.pageSize ?? 10;
@@ -71,7 +90,7 @@ const PositionsTable: React.FC = () => {
     },
     {
       title: "F.I.SH",
-      dataIndex: "fullname",
+      dataIndex: "fullName",
       width: "10%",
       render: val => <span style={{ color: "#1677FF" }}>{val}</span>,
     },
@@ -81,100 +100,96 @@ const PositionsTable: React.FC = () => {
       width: "10%",
     },
     {
-      title: "Tug'ilgan sana",
-      dataIndex: "birthday",
-      width: "10%",
-    },
-    {
-      title: "Kiritish",
-      dataIndex: ["access", "is_enter"],
+      title: "Amal bajarish",
+      dataIndex: "action",
       width: "10%",
       align: "center",
-      render: (is_enter: boolean) =>
-        is_enter ? <AccessIcon /> : <NotAccessIcon />,
+      render: (action: boolean) =>
+        action ? <AccessIcon /> : <NotAccessIcon />,
     },
     {
-      title: "Harakat",
-      dataIndex: ["access", "is_action"],
+      title: "Excel",
+      dataIndex: "excel",
       width: "10%",
       align: "center",
-      render: (is_action: boolean) =>
-        is_action ? <AccessIcon /> : <NotAccessIcon />,
+      render: (excel: boolean) => (excel ? <AccessIcon /> : <NotAccessIcon />),
     },
     {
-      title: "Hisobot",
-      dataIndex: ["access", "is_report"],
-      width: "10%",
-      align: "center",
-      render: (is_report: boolean) =>
-        is_report ? <AccessIcon /> : <NotAccessIcon />,
-    },
-    {
-      title: "Excelga eksport qilish",
-      dataIndex: ["access", "is_excel"],
-      width: "10%",
-      align: "center",
-      render: (is_excel: boolean) =>
-        is_excel ? <AccessIcon /> : <NotAccessIcon />,
-    },
-    {
-      title: "Yaratildi",
-      dataIndex: "created_by_user",
+      title: "Telefon raqami",
+      dataIndex: "phone",
       width: "10%",
     },
     {
-      title: "Yaratilgan vaqt",
-      dataIndex: "created_at",
-      width: "10%",
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      width: "4%",
+      title: "Harakatlar",
+      key: "action",
+      width: "20%",
       align: "center",
       render: (_, record) => (
-        <Space>
+        <Space size="middle">
+          <Button icon={<FilePenLine />} onClick={() => handleEdit(record)} />
           <Popconfirm
-            title="Are you sure to delete this user?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
+            title="Ishonchingiz komilmi?"
+            onConfirm={() => deleteData(record.id!)}
+            okText="Ha"
+            cancelText="Yo'q"
           >
-            <Button type="link" style={{ color: "red" }}>
-              <Trash2 />
-            </Button>
+            <Button danger icon={<Trash2 />} />
           </Popconfirm>
-          <Button type="link">
-            <FilePenLine />
-          </Button>
         </Space>
       ),
     },
   ];
 
-  useEffect(() => {
-    setData(data);
-    setLoading(false);
-    setTableParams({
-      ...tableParams,
-      pagination: {
-        ...tableParams.pagination,
-      },
-    });
-  }, [tableParams.pagination?.current, tableParams.pagination?.pageSize]);
-
-
   return (
-    <Table
-      columns={columns}
-      rowKey={"id"}
-      dataSource={data}
-      pagination={tableParams.pagination}
-      loading={loading}
-      onChange={handleTableChange}
-      bordered
-    />
+    <>
+      <EmployeesModal
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        onCreate={createData}
+        onUpdate={updateData}
+        initialData={initialData}
+        setInitialData={setInitialData}
+        error={error}
+        loading={loading}
+      />
+      <Flex justify="space-between" align="center" style={{ marginBottom: "10px" }}>
+        <Input
+          placeholder="Qidirish"
+          prefix={<SearchOutlined />}
+          onChange={e => handleSearchChange(e.target.value)}
+          style={{width: "400px"}}
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setOpenModal(true)}
+        >
+          Qo'shish
+        </Button>
+      </Flex>
+      <Table
+        columns={columns}
+        rowKey={record => record.id || ""}
+        dataSource={
+          Array.isArray(data)
+            ? data
+            : (data as PaginatedData<EmployeesType>)?.data
+        }
+        pagination={
+          tableParams.pagination &&
+          (data as PaginatedData<EmployeesType>)?.pageCount
+            ? {
+                ...tableParams.pagination,
+                total: (data as PaginatedData<EmployeesType>)?.total || 0,
+              }
+            : false
+        }
+        loading={loading}
+        onChange={handleTableChange}
+        bordered
+      />
+    </>
   );
 };
 
-export default PositionsTable;
+export default EmployeesTable;

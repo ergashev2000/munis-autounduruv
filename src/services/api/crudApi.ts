@@ -43,7 +43,10 @@ export const getAll = async <T>(
       cache.delete(requestUrl);
     }
     const response = await axiosInstance.get(requestUrl);
-    const responseData = response.data.data;
+
+    const responseData = response.data?.data;
+    console.log(responseData);
+
     cache.set(requestUrl, responseData);
     return responseData;
   } catch (error) {
@@ -107,6 +110,26 @@ export const remove = async (
   try {
     await axiosInstance.delete(requestUrl);
     cache.clear();
+  } catch (error) {
+    throw handleError(error);
+  }
+};
+
+export const createMultipart = async <T>(
+  endpoint: string,
+  data: T
+): Promise<T> => {
+  try {
+    const response = await axiosInstance.post<ApiResponse<T>>(endpoint, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log(response);
+    
+    const responseData = response.data.data;
+    cache.clear();
+    return responseData;
   } catch (error) {
     throw handleError(error);
   }

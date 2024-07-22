@@ -1,195 +1,295 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Button,
   Input,
   Modal,
   Form,
-  Flex,
   Typography,
   Row,
   Select,
-  SelectProps,
+  Checkbox,
+  message,
+  Col,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
-import {
-  PlusOutlined,
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-} from "@ant-design/icons";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { EmployeesType } from "../types/EmployeesType";
+import { PositionType } from "../types/PositionsType";
+import { BranchsType } from "../types/BranchsType";
+import { getAll } from "../services/api/crudApi";
 
-const EmployeesModal: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
+interface EmployeesModalProps {
+  openModal: boolean;
+  setOpenModal: (value: boolean) => void;
+  onCreate?: (data: EmployeesType) => void;
+  onUpdate?: (id: string, data: EmployeesType) => void;
+  initialData?: EmployeesType | null;
+  setInitialData?: ((data: EmployeesType | null) => void) | undefined;
+  error?: string | null;
+  loading?: boolean;
+}
 
-  const [positionName, setPositionName] = useState("");
+const EmployeesModal: React.FC<EmployeesModalProps> = ({
+  openModal,
+  setOpenModal,
+  onCreate,
+  onUpdate,
+  initialData,
+  setInitialData,
+  error,
+  loading = false,
+}) => {
+  const [branchsLoading, setBranchsLoading] = useState(false);
+  const [positions, setPositions] = useState<PositionType[]>([]);
+  const [branches, setBranches] = useState<BranchsType[]>([]);
   const [checkboxValues, setCheckboxValues] = useState({
-    sozlanmalar: false,
-    adminHisoboti: false,
-    filialMenyusi: false,
-    kartaBoglash: false,
-    hisobotlar: false,
+    action: false,
+    excel: false,
   });
+  const [form] = Form.useForm();
+  const [selectedBranchIds, setSelectedBranchIds] = useState<BranchsType[]>([]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPositionName(e.target.value);
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      setBranchsLoading(true);
+      try {
+        const [positionsData, branchesData] = await Promise.all([
+          getAll<PositionType[]>("/positions"),
+          getAll<BranchsType[]>("/branches"),
+        ]);
+        setPositions(positionsData);
+        setBranches(branchesData);
+      } catch (error) {
+        message.error("An error occurred while fetching data");
+      } finally {
+        setBranchsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (openModal) {
+      if (initialData) {
+        form.setFieldsValue({
+          username: initialData.username,
+          fullName: initialData.fullName,
+          phone: initialData.phone,
+          status: initialData.status,
+          positionId: initialData.positionId,
+          action: initialData.action,
+          excel: initialData.excel,
+        });
+        setSelectedBranchIds(initialData.branches || []);
+        setCheckboxValues({
+          action: initialData.action,
+          excel: initialData.excel,
+        });
+      } else {
+        form.resetFields();
+        setSelectedBranchIds([]);
+        setCheckboxValues({
+          action: false,
+          excel: false,
+        });
+      }
+    }
+  }, [initialData, openModal, form]);
 
   const handleCheckboxChange = (e: CheckboxChangeEvent) => {
-    setCheckboxValues({
-      ...checkboxValues,
+    setCheckboxValues(prev => ({
+      ...prev,
       [e.target.name!]: e.target.checked,
-    });
+    }));
   };
 
-  const handleOk = () => {
-    setModalText("The modal will be closed after two seconds");
-    setConfirmLoading(true);
-    setTimeout(() => {
-      setOpen(false);
-      setConfirmLoading(false);
-    }, 2000);
+  const handleBranchChange = (value: BranchsType[]) => {
+    setSelectedBranchIds(value);
+    form.setFieldsValue({ branches: value });
   };
 
-  const options: SelectProps["options"] = [];
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
 
-  for (let i = 0; i < 100000; i++) {
-    const value = `Fargona-${i.toString(36)}${i}`;
-    options.push({
-      label: value,
-      value,
-      disabled: i === 10,
-    });
-  }
+      const obj: EmployeesType = {
+        username: values.username,
+        fullName: values.fullName,
+        phone: values.phone,
+        status: values.status,
+        positionId: values.positionId,
+        action: checkboxValues.action,
+        excel: checkboxValues.excel,
+        branches: selectedBranchIds,
+      };
+      if (values.password) {
+        obj.password = values.password;
+      }
+      console.log(obj);
 
-  const handleChange = (value: string[]) => {
-    console.log(`selected ${value}`);
+      if (initialData && onUpdate) {
+        onUpdate(initialData.id!, obj);
+      } else if (onCreate) {
+        onCreate(obj);
+      }
+      console.log(error);
+      
+      if (error) {
+        message.error(error);
+        return;
+      }
+      setOpenModal(false);
+      form.resetFields();
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
   };
+
+  const handleCancel = () => {
+    setOpenModal(false);
+    form.resetFields();
+  };
+
+  useEffect(() => {
+    if (!openModal && setInitialData) {
+      setInitialData(null);
+    }
+  }, [openModal, setInitialData]);
 
   return (
-    <>
-      <Button type="primary" onClick={() => setOpen(true)} size="large">
-        <PlusOutlined /> Foydalanuvchi qo'shish
-      </Button>
-      <Modal
-        title="Foydalanuvchi qo'shish"
-        centered
-        open={open}
-        onOk={() => handleOk()}
-        onCancel={() => setOpen(false)}
-        width={800}
-        okText={"Tasdiqlash"}
-        cancelText={"Bekor qilish"}
-        confirmLoading={confirmLoading}
-        maskClosable={false}
-      >
-        <Form>
+    <Modal
+      centered
+      open={openModal}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      width={800}
+      okText="Tasdiqlash"
+      cancelText="Bekor qilish"
+      confirmLoading={loading}
+      maskClosable={false}
+      loading={branchsLoading}
+    >
+      {branchsLoading ? (
+        <Typography.Text>Loading...</Typography.Text>
+      ) : (
+        <Form form={form} layout="vertical">
           <Typography.Title level={4}>
             Foydalanuvchi ma'lumotlari
           </Typography.Title>
-          <Flex justify="space-between" gap={20}>
-            <Flex vertical gap={10} style={{ width: "50%" }}>
-              <Row>
-                <label htmlFor="fullname">F.I.SH</label>
-                <Input
-                  placeholder="F.I.SH"
-                  id={"fullname"}
-                  value={positionName}
-                  onChange={handleInputChange}
-                  size="large"
-                />
-              </Row>
-              <Row>
-                <label htmlFor="phone_number">Telefon raqam</label>
-                <Input
-                  placeholder="Telefon raqam..."
-                  id={"phone_number"}
-                  value={positionName}
-                  onChange={handleInputChange}
-                  size="large"
-                />
-              </Row>
-              <Row>
-                <label htmlFor="login">Login</label>
-                <Input
-                  placeholder="Login..."
-                  value={positionName}
-                  onChange={handleInputChange}
-                  id="login"
-                  size="large"
-                />
-              </Row>
-              <Row>
-                <label htmlFor="password">Parol</label>
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item
+                label="F.I.SH"
+                name="fullName"
+                rules={[
+                  { required: true, message: "Please input the full name!" },
+                ]}
+              >
+                <Input placeholder="F.I.SH" size="large" />
+              </Form.Item>
+              <Form.Item
+                label="Telefon raqam"
+                name="phone"
+                rules={[
+                  { required: true, message: "Please input the phone number!" },
+                ]}
+              >
+                <Input placeholder="Telefon raqam..." size="large" />
+              </Form.Item>
+              <Form.Item
+                label="Login"
+                name="username"
+                rules={[{ required: true, message: "Please input the login!" }]}
+              >
+                <Input placeholder="Login..." size="large" />
+              </Form.Item>
+              <Form.Item
+                label="Parol"
+                name="password"
+                rules={[
+                  {
+                    required: !initialData,
+                    message: "Please input the password!",
+                  },
+                ]}
+              >
                 <Input.Password
                   placeholder="Parol..."
                   iconRender={visible =>
                     visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                   }
-                  onChange={handleInputChange}
-                  value={positionName}
-                  id="password"
                   size="large"
                 />
-              </Row>
-            </Flex>
-
-            <Flex vertical gap={10} style={{ width: "50%" }}>
-              <Row>
-                <label htmlFor="phone_number">Status</label>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Status"
+                name="status"
+                rules={[
+                  { required: true, message: "Please select the status!" },
+                ]}
+              >
                 <Select
                   style={{ width: "100%" }}
-                  onChange={handleChange}
                   options={[
-                    { value: "active", label: "Faol" },
-                    { value: "noactive", label: "Nofaol" },
-                  ]}
-                  size="large"
-                  defaultValue={["active"]}
-                />
-              </Row>
-              <Row>
-                <label htmlFor="position">Lavozim</label>
-                <Select
-                  id="position"
-                  defaultValue={["foydalanuvchi"]}
-                  style={{ width: "100%" }}
-                  onChange={handleChange}
-                  options={[
-                    { value: "foydalanuvchi", label: "Foydalanuvchi" },
-                    { value: "admin", label: "Admin" },
-                    { value: "menejer", label: "Menejer" },
+                    { value: true, label: "Faol" },
+                    { value: false, label: "Nofaol" },
                   ]}
                   size="large"
                 />
-              </Row>
-              <Row>
-                <label htmlFor="phone_number">Filiallar</label>
+              </Form.Item>
+              <Form.Item
+                label="Lavozim"
+                name="positionId"
+                rules={[
+                  { required: true, message: "Please select the position!" },
+                ]}
+              >
+                <Select
+                  style={{ width: "100%" }}
+                  options={positions.map(pos => ({
+                    value: pos.id,
+                    label: pos.name,
+                  }))}
+                  size="large"
+                />
+              </Form.Item>
+              <Form.Item label="Filiallar" name="branches">
                 <Select
                   mode="multiple"
                   style={{ width: "100%" }}
                   placeholder="Please select"
-                  onChange={handleChange}
-                  options={options}
+                  value={selectedBranchIds}
+                  onChange={handleBranchChange}
+                  options={branches.map(branch => ({
+                    value: branch.id,
+                    label: branch.name,
+                  }))}
                   size="large"
                 />
-              </Row>
-              <Row>
-                <label htmlFor="phone_number">Huquqlar</label>
-                <Select
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Please select"
-                  onChange={handleChange}
-                  options={options}
-                  size="large"
-                />
-              </Row>
-            </Flex>
-          </Flex>
+              </Form.Item>
+              <Form.Item>
+                <Checkbox
+                  name="action"
+                  checked={checkboxValues.action}
+                  onChange={handleCheckboxChange}
+                >
+                  Action Huquqi
+                </Checkbox>
+                <Checkbox
+                  name="excel"
+                  checked={checkboxValues.excel}
+                  onChange={handleCheckboxChange}
+                >
+                  Excel Huquqi
+                </Checkbox>
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
-      </Modal>
-    </>
+      )}
+    </Modal>
   );
 };
 

@@ -41,13 +41,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const getMe = async () => {
     try {
       const { data } = await axiosInstance.get("/auth/me");
-      console.log("Get me ---- Rerender.......");
-      
       setUser(data.data);
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
-      setUser(null);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -56,7 +53,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     const accessToken = getAccessTokenFromCookie();
-
     if (accessToken) {
       getMe().catch(error =>
         console.error("Failed to fetch user data:", error)

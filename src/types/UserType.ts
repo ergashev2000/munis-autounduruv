@@ -1,5 +1,4 @@
 export type UserType = {
-  data(data: any): unknown;
   fullName: string;
   id: string;
   pages: {

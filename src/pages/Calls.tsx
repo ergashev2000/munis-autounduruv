@@ -1,8 +1,8 @@
+import { Flex } from "antd";
+
 import BreadcrumbItem from "@components/ui/Breadcrumbs";
 import { callsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import CallsTable from "@components/CallsTable";
-
-import { Flex } from "antd";
 
 export default function Calls() {
   return (

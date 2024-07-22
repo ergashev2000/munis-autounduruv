@@ -1,6 +1,6 @@
 import { whiteListBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import { Breadcrumb, Flex } from "antd";
-import WhiteListTable from "../../components/WhiteListTable";
+import WhiteListTable from "@components/WhiteListTable";
 
 export default function WhiteList() {
   return (

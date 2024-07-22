@@ -1,6 +1,6 @@
 import BranchsModal from "./BranchsModal";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Space, Table, Input, Popconfirm, Flex, message } from "antd";
 import { ColumnsType, TableProps } from "antd/es/table";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
@@ -21,16 +21,12 @@ export default function BranchsTable() {
     },
   });
 
-  const { data, loading, createData, updateData, deleteData, refetch } =
+  const { data, loading, createData, updateData, deleteData } =
     useFetch<BranchsType>("/branches", {
       search: searchText,
       page: tableParams.pagination.current,
       pageSize: tableParams.pagination.pageSize,
     });
-
-  useEffect(() => {
-    refetch();
-  }, [searchText]);
 
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Input, Modal, Form, Checkbox, Typography } from "antd";
-import { PositionsType } from "../types/PositionsType";
+import { Input, Modal, Form, Checkbox, Typography, Flex } from "antd";
+import { PositionType } from "../types/PositionsType";
 
 interface Positions {
   openModal: boolean;
   setOpenModal: (value: boolean) => void;
-  onCreate?: (data: PositionsType) => void;
-  onUpdate?: (id: string | undefined, data: PositionsType) => void;
-  initialData?: PositionsType;
-  setInitialData?: ((data: PositionsType | undefined) => void) | undefined;
+  onCreate?: (data: PositionType) => void;
+  onUpdate?: (id: string | undefined, data: PositionType) => void;
+  initialData?: PositionType;
+  setInitialData?: ((data: PositionType | undefined) => void) | undefined;
 }
 
 const PositionsModal: React.FC<Positions> = ({
@@ -43,7 +43,7 @@ const PositionsModal: React.FC<Positions> = ({
     try {
       setConfirmLoading(true);
       const values = await form.validateFields();
-      const obj: PositionsType = {
+      const obj: PositionType = {
         name: values.name,
         settings: values.sozlanmalar,
         dashboard: values.kartaBoglash,
@@ -102,7 +102,7 @@ const PositionsModal: React.FC<Positions> = ({
             <Typography.Title level={5}>
               Qo'shimcha imkonyatlar
             </Typography.Title>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Flex justify="space-between">
               <div style={{ width: "50%" }}>
                 <Form.Item name="sozlanmalar" valuePropName="checked">
                   <Checkbox>Sozlanmalar</Checkbox>
@@ -122,7 +122,7 @@ const PositionsModal: React.FC<Positions> = ({
                   <Checkbox>Hisobotlar</Checkbox>
                 </Form.Item>
               </div>
-            </div>
+            </Flex>
           </Form.Item>
         </Form>
       </Modal>

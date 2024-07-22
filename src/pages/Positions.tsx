@@ -1,6 +1,7 @@
+import { Breadcrumb, Flex } from "antd";
+
 import PositionsTable from "@components/PositionsTable";
 import { positionsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
-import { Breadcrumb, Flex } from "antd";
 
 export default function Positions() {
   return (
