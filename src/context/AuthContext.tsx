@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import axiosInstance from "../services/api/axiosInstance";
+import axiosInstance from "../config/axiosInstance";
 import Cookies from "js-cookie";
 import { getAccessTokenFromCookie, setCookie } from "@utils/cookies";
 import { message } from "antd";

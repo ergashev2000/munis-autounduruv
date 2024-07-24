@@ -7,17 +7,19 @@ import Humo from "../assets/icons/humo-logo.jpg";
 import UzCard from "../assets/icons/my_uzcard.png";
 import { scanCard } from "@utils/scanCards";
 import { formatCardNumber } from "@utils/formatCardNumber";
+import { Flex } from "antd";
+import { formatPhoneNumber } from "@utils/formatCardData";
 
 interface CardProps {
   cardNumber: string;
   expiryDate: string;
-  fullName: string;
+  userPhone: string;
 }
 
 const MockupCard: React.FC<CardProps> = ({
   cardNumber,
   expiryDate,
-  fullName,
+  userPhone,
 }) => {
   const [isCorrectCard, setIsCorrectCard] = useState("");
 
@@ -34,10 +36,10 @@ const MockupCard: React.FC<CardProps> = ({
       <div className="mockup-card-body">
         <div className="mockup-card-info">
           <div className="mockup-card-label">
-            <img src={SimCardChip} alt="" />
+            <img src={SimCardChip} alt="icon" />
           </div>
           <div className="mockup-card-icon">
-            <img src={Wifi} alt="" />
+            <img src={Wifi} alt="icon" />
           </div>
         </div>
         <div className="mockup-card-value">
@@ -49,14 +51,8 @@ const MockupCard: React.FC<CardProps> = ({
             <p className="mockup-card-year">{expiryDate}</p>
           </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "end",
-            justifyContent: "space-between",
-          }}
-        >
-          <h3 className="mockup-card-fullname">{fullName}</h3>
+        <Flex align="end" justify="space-between">
+          <h3 className="mockup-card-fullname">{formatPhoneNumber(userPhone)}</h3>
           <div className="mockup-card-symbal">
             {["UZCARD", "HUMO"].includes(isCorrectCard) && (
               <img
@@ -67,7 +63,7 @@ const MockupCard: React.FC<CardProps> = ({
               />
             )}
           </div>
-        </div>
+        </Flex>
       </div>
     </div>
   );

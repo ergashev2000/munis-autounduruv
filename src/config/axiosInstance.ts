@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessTokenFromCookie } from "../../utils/cookies";
+import { getAccessTokenFromCookie } from "../utils/cookies";
 
 const VITE_BASE_URL = import.meta.env.VITE_BASE_URL as string;
 
@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   config => {
     const accessToken = getAccessTokenFromCookie();
-    
+
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }

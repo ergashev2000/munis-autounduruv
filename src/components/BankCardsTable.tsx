@@ -1,88 +1,93 @@
-import React, { useState, useEffect } from "react";
-import { Table, Input, Space } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Table, Input, Space, message, Button } from "antd";
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import { SorterResult } from "antd/es/table/interface";
-import axios from "axios";
+import useFetch from "../hooks/useFetch";
+import { debounce } from "lodash";
+import BankCardAddModal from "./BankCardAddModal";
+import { BankCardTypes } from "../types/BankCardTypes";
+import { PaginatedData } from "../types/PaginatedType";
 
-interface TableData {
-  key: string;
-  fullName: string;
-  contractId: string;
-  phoneNumber: string;
-  cardNumber: string;
-  cardExpiryDate: string;
-  filial: string;
-}
-
-const CustomTable: React.FC = () => {
-  const [data, setData] = useState<TableData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+const BankCardsTable: React.FC = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [initialData, setInitialData] = useState<BankCardTypes | undefined>();
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
-    pageSize: 50,
+    pageSize: 10,
+    total: 0,
   });
-  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  useEffect(() => {
-    fetchData();
-  }, [pagination.current, pagination.pageSize, searchTerm]);
+  const { data, loading, createData, updateData, deleteData } =
+    useFetch<BankCardTypes>("/clients", {
+      search: searchText,
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+    });
 
-  const fetchData = async (
-    sortField: string | null = null,
-    sortOrder: string | null = null
-  ) => {
-    setLoading(true);
+  const handleSearchChange = debounce((value: string) => {
+    setSearchText(value);
+  }, 300);
 
+  const handleEdit = (record: BankCardTypes) => {
+    setInitialData(record);
+    setOpenModal(true);
+  };
+
+  const handleDelete = async (id: string | undefined) => {
     try {
-      const params: Record<string, any> = {
-        sortField,
-        sortOrder,
-        searchTerm,
-        page: pagination.current,
-        pageSize: pagination.pageSize,
-      };
-
-      const response = await axios.get("/api/data", {
-        params,
-      });
-      setData(response.data.items);
-      setPagination(prev => ({
-        ...prev,
-        total: response.data.totalCount,
-      }));
+      await deleteData(id!);
+      message.success("Muvaffaqiyatli o'chirildi");
     } catch (error) {
-      console.error("Error fetching data:", error);
-      setData([]);
+      console.error("Failed to delete:", error);
+      message.error("O'chirishda xato yuz berdi!");
     }
-    setLoading(false);
   };
 
-  const handleTableChange = (
-    pagination: TablePaginationConfig,
-    sorter: SorterResult<TableData> | SorterResult<TableData>[]
-  ) => {
-    const sortField: string | null = Array.isArray(sorter)
-      ? (sorter[0]?.field as string)
-      : (sorter?.field as string);
-    const sortOrder: string | null = Array.isArray(sorter)
-      ? sorter[0]?.order ?? null
-      : sorter?.order ?? null;
-
+  const handleTableChange = (pagination: TablePaginationConfig) => {
     setPagination(pagination);
-    fetchData(sortField, sortOrder);
   };
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    setPagination({ ...pagination, current: 1 });
+  const handleCreate = async (newData: BankCardTypes) => {
+    try {
+      await createData(newData);
+      setOpenModal(false);
+      message.success("Muvaffaqiyatli qo'shildi");
+    } catch (error) {
+      console.error("Failed to create:", error);
+      message.error("Qo'shishda xato yuz berdi!");
+    }
   };
 
-  const columns: ColumnsType<TableData> = [
+  const handleUpdate = async (
+    id: string | undefined,
+    updatedData: BankCardTypes
+  ) => {
+    try {
+      await updateData(id!, updatedData);
+      setOpenModal(false);
+      message.success("Muvaffaqiyatli yangilandi");
+    } catch (error) {
+      console.error("Failed to update:", error);
+      message.error("Yangilashda xato yuz berdi!");
+    }
+  };
+
+  const columns: ColumnsType<BankCardTypes> = [
     {
-      title: "Ism va familiya",
-      dataIndex: "fullName",
-      key: "fullName",
+      title: "№",
+      dataIndex: "order",
+      width: "0.1%",
+      align: "center",
+      render: (_, __, index: number) => {
+        const { current = 1, pageSize = 10 } = pagination;
+        return (current - 1) * pageSize + index + 1;
+      },
     },
     {
       title: "Kontrakt ID",
@@ -109,24 +114,70 @@ const CustomTable: React.FC = () => {
       dataIndex: "filial",
       key: "filial",
     },
+    {
+      title: "Harakatlar",
+      key: "actions",
+      render: (_, record) => (
+        <Button danger onClick={() => handleDelete(record.id)}>
+          <DeleteOutlined /> O'chirish
+        </Button>
+      ),
+    },
   ];
 
   return (
     <>
-      <Space style={{ marginBottom: 16 }}>
+      <BankCardAddModal
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        loading={loading}
+      />
+      <Space
+        direction="horizontal"
+        style={{
+          paddingBottom: "20px",
+          width: "100%",
+          justifyContent: "space-between",
+        }}
+      >
         <Input
           placeholder="Search"
-          value={searchTerm}
-          onChange={e => handleSearch(e.target.value)}
-          style={{ width: 400 }}
+          onChange={e => handleSearchChange(e.target.value)}
           prefix={<SearchOutlined />}
+          style={{ width: 400 }}
+          allowClear
         />
+        <Button type="primary" onClick={() => setOpenModal(true)}>
+          <PlusCircleOutlined /> Karta qo'shish
+        </Button>
       </Space>
-      <Table<TableData>
+      <Table<BankCardTypes>
+        className="custom-table"
         columns={columns}
-        dataSource={data}
+        dataSource={
+          Array.isArray(data)
+            ? data
+            : (data as PaginatedData<BankCardTypes>)?.data
+        }
         loading={loading}
-        pagination={pagination}
+        pagination={{
+          total: (data as PaginatedData<BankCardTypes>)?.total ?? 0,
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          showTotal: total => `Jami: ${total} ta`,
+          locale: {
+            items_per_page: "tadan",
+            jump_to: "O'tish",
+            jump_to_confirm: "Tasdiqlash",
+            page: "Sahifa",
+          },
+          onChange: (page, pageSize) =>
+            setPagination({
+              current: page,
+              pageSize,
+              total: pagination.total,
+            }),
+        }}
         onChange={handleTableChange}
         scroll={{ x: true }}
         bordered
@@ -135,4 +186,4 @@ const CustomTable: React.FC = () => {
   );
 };
 
-export default CustomTable;
+export default BankCardsTable;

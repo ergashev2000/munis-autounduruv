@@ -10,3 +10,21 @@
   border-radius: 16px;
   box-shadow: none!important;
 }
+
+
+.ant-table-thead>tr>th {
+  background-color: #163297 !important;
+  color: white !important;
+  text-align: center !important;
+}
+
+.custom-table .ant-table-thead {
+  position: sticky;
+  top: 0px;
+  z-index: 1;
+}
+
+.ant-otp-input{
+  font-size: 18px;
+  font-weight: 600;
+}

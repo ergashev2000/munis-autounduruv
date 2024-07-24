@@ -1,5 +1,6 @@
 export type CallSettings = {
   name: string;
+  type: string;
   minPaymentDate: number;
   minDebtorMonths: number;
   minCurrentDebt: number;
@@ -12,9 +13,6 @@ export type CallSettings = {
   sendSunday: boolean;
   startHours: string;
   endHours: string;
-  whiteCallAudio: string;
-  whiteYellowCallAudio: string;
-  yellowCallAudio: string;
-  redCallAudio: string;
-  blackCallAudio: string;
+  audioId: string;
+  [key: string]: string | number | boolean;
 }

@@ -1,4 +1,4 @@
-import { CardType } from "../enums/cardType";
+import { CardType } from "../enums/CardType";
 
 export const scanCard = (cardNumber: string): CardType => {
   const uzcardRegex = /^(8600|5614|5440)/;

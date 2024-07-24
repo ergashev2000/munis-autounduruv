@@ -22,3 +22,14 @@ export interface CallDataI {
   missedCalls: number;
   answeredCalls: number;
 }
+
+
+export type BankCardTypes = {
+  id?: string;
+  contractId: string;
+  cardNumber: string;
+  expireDate: string;
+  userPhone: string;
+  pinfl: string;
+};
+

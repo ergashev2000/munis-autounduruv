@@ -1,5 +1,5 @@
-import axiosInstance from "./axiosInstance";
-import { handleError } from "./utils";
+import axiosInstance from "../../config/axiosInstance";
+import { handleError } from "../utils";
 
 interface ApiResponse<T> {
   data: T;
@@ -45,7 +45,6 @@ export const getAll = async <T>(
     const response = await axiosInstance.get(requestUrl);
 
     const responseData = response.data?.data;
-    console.log(responseData);
 
     cache.set(requestUrl, responseData);
     return responseData;
@@ -126,7 +125,7 @@ export const createMultipart = async <T>(
       },
     });
     console.log(response);
-    
+
     const responseData = response.data.data;
     cache.clear();
     return responseData;

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
-
-import { Table, Button, Space, Select, Flex } from "antd";
+import { Table, Button, Space, Select, Input, Row, Col } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import {
   PlayCircleOutlined,
@@ -16,6 +15,8 @@ import { debounce } from "lodash";
 import { PaginatedData } from "../types/PaginatedType";
 import CallsAddModal from "./CallsAddModal";
 
+const { Option } = Select;
+
 const CallsTable: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -24,7 +25,6 @@ const CallsTable: React.FC = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [initialId, setInitialId] = useState<CallSettings | null>(null);
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: initialPage,
@@ -32,7 +32,7 @@ const CallsTable: React.FC = () => {
     },
   });
 
-  const { data, loading } = useFetch("/calls", {
+  const { data, loading, refetch } = useFetch("/calls", {
     search: searchText,
     page: tableParams.pagination.current,
     pageSize: tableParams.pagination.pageSize,
@@ -41,11 +41,6 @@ const CallsTable: React.FC = () => {
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);
   }, 100);
-
-  const handleEdit = (record: CallSettings) => {
-    setInitialId(record);
-    setOpenModal(true);
-  };
 
   const handleTableChange: TableProps<CallSettings>["onChange"] =
     pagination => {
@@ -81,7 +76,7 @@ const CallsTable: React.FC = () => {
     {
       title: "ID",
       dataIndex: "order",
-      width: "3%",
+      width: "5%",
       render: (_, __, index: number) => {
         const currentPage = tableParams.pagination?.current ?? 1;
         const pageSize = tableParams.pagination?.pageSize ?? 10;
@@ -103,7 +98,7 @@ const CallsTable: React.FC = () => {
     {
       title: "Qarzdor kunlar",
       dataIndex: "minCurrentDebt",
-      width: "10%",
+      width: "15%",
     },
     {
       title: "Qarzdorlar soni",
@@ -120,42 +115,55 @@ const CallsTable: React.FC = () => {
       dataIndex: "status",
       width: "10%",
       align: "center",
-      render: (_, record) => (
-        <span
-          style={{
-            border: "1px solid #1f8a2e",
-            borderRadius: "4px",
-            backgroundColor: "#1f8a2e",
-            color: "white",
-            paddingInline: "14px",
-          }}
-        >
-          {record.status}
-        </span>
-      ),
+      render: (_, record) =>
+        record.status ? (
+          <span
+            style={{
+              border: "1px solid #1f8a2e",
+              borderRadius: "4px",
+              backgroundColor: "#1f8a2e",
+              color: "white",
+              paddingInline: "14px",
+            }}
+          >
+            Faol
+          </span>
+        ) : (
+          <span
+            style={{
+              border: "1px solid #1f8a2e",
+              borderRadius: "4px",
+              backgroundColor: "#1f8a2e",
+              color: "white",
+              paddingInline: "14px",
+            }}
+          >
+            Faol
+          </span>
+        ),
     },
     {
       title: "Harakatlar",
       dataIndex: "actions",
-      width: "15%",
+      width: "20%",
       render: (_, record) => (
-        <Space size={"large"}>
+        <Space size="large">
           <Select defaultValue="start" style={{ width: 200 }}>
-            <Select.Option value="start">
+            <Option value="start">
               <Space>
                 <PlayCircleOutlined style={{ color: "#52c41a" }} /> Boshlash
               </Space>
-            </Select.Option>
-            <Select.Option value="pause">
+            </Option>
+            <Option value="pause">
               <Space>
                 <PauseCircleOutlined style={{ color: "#FF8C00" }} /> To'xtatish
               </Space>
-            </Select.Option>
-            <Select.Option value="end">
+            </Option>
+            <Option value="end">
               <Space>
                 <CloseCircleOutlined style={{ color: "#b81212" }} /> Tugatish
               </Space>
-            </Select.Option>
+            </Option>
           </Select>
         </Space>
       ),
@@ -164,17 +172,36 @@ const CallsTable: React.FC = () => {
 
   return (
     <>
-      <CallsAddModal open={openModal} setOpen={setOpenModal} />
-      <Flex justify="end" gap={60} style={{ marginBottom: "20px" }}>
-        <Space>
-          <Button>
-            <DownloadOutlined /> Export
-          </Button>
-          <Button type="primary" onClick={() => setOpenModal(true)}>
-            Qo'ng'iroqlar qo'shish
-          </Button>
-        </Space>
-      </Flex>
+      <CallsAddModal
+        open={openModal}
+        setOpen={setOpenModal}
+        refetch={refetch}
+      />
+      <Row style={{ marginBottom: "20px" }}>
+        <Col
+          span={24}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Input.Search
+            placeholder="Search by name"
+            onSearch={handleSearchChange}
+            onChange={e => handleSearchChange(e.target.value)}
+            style={{ width: 300 }}
+          />
+          <Space>
+            <Button>
+              <DownloadOutlined /> Export
+            </Button>
+            <Button type="primary" onClick={() => setOpenModal(true)}>
+              Qo'ng'iroqlar qo'shish
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       <Table
         dataSource={
           Array.isArray(data)

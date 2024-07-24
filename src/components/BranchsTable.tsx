@@ -149,7 +149,6 @@ export default function BranchsTable() {
       >
         <Input
           placeholder="Search"
-          value={searchText}
           onChange={e => handleSearchChange(e.target.value)}
           prefix={<SearchOutlined />}
           style={{ width: 400 }}

@@ -17,6 +17,7 @@ import { AccessIcon, NotAccessIcon } from "../assets/icons/svgs";
 const EmployeesTable: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  
   const searchParams = new URLSearchParams(location.search);
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
 
