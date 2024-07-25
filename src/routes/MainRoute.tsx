@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { getValueFromCookie } from "@utils/cookies";
 import PrivateRoute from "./PrivateRoute";
@@ -19,6 +19,7 @@ const MainLayout = lazy(() => import("../layouts/MainLayout"));
 const ProviderLayout = lazy(() => import("../layouts/ProviderLayout"));
 
 const permissions = getValueFromCookie("permissions");
+console.log(permissions);
 
 const privateRoutes = [
   {

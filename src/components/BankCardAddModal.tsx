@@ -15,6 +15,7 @@ import { SendOutlined } from "@ant-design/icons";
 import MockupCard from "./MockupCard";
 import { applyZeroMasking, months, years } from "@utils/formatCardData";
 import { OTPProps } from "antd/es/input/OTP";
+import { alertError } from "@utils/toastify";
 
 interface CardDetails {
   cardNumber: string;
@@ -28,13 +29,13 @@ interface CardDetails {
 interface BankCardModalProps {
   openModal: boolean;
   setOpenModal: (value: boolean) => void;
-  loading: boolean;
+  refetch: () => void;
 }
 
 const BankCardAddModal: React.FC<BankCardModalProps> = ({
   openModal,
   setOpenModal,
-  loading,
+  refetch,
 }) => {
   const [cardDetails, setCardDetails] = useState<CardDetails>({
     cardNumber: "",
@@ -44,11 +45,12 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
     pinfl: "",
     userPhone: "",
   });
-  console.log(cardDetails.expiryMonth);
 
   const [session, setSession] = useState("");
-  const [openOtp, setOpenOtp] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
   const [isCooldown, setIsCooldown] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState<number>(30);
 
   const handleChange =
@@ -90,6 +92,7 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
       message.error("Iltimos, barcha maydonlarni to'ldiring.");
       return;
     }
+    setLoading(true);
 
     const {
       cardNumber,
@@ -108,16 +111,16 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
         userPhone: `998${userPhone}`,
         pinfl,
       });
-      console.log(response);
 
       const { session } = response.data.data;
       setSession(session);
-      setOpenOtp(true);
       startCooldown();
     } catch (error) {
       console.error("Error sending card details:", error);
-      message.error("Karta ma'lumotlarini yuborishda xato yuz berdi.");
+      alertError("Karta ma'lumotlarini yuborishda xato yuz berdi.");
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,23 +134,17 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
         contractId,
       });
 
-      if (response.data.status === 200) {
-        message.success("Karta tasdiqlandi!");
+      if (response.status === 201) {
+        message.success("Mijoz kartasi tasdiqlandi!");
         setOpenModal(false);
+        refetch();
+        reset();
       } else {
         message.error("Karta tasdiqlashda xato yuz berdi!");
       }
     } catch (error) {
       console.error("Error confirming card:", error);
-      message.error("Tasdiqlashda xato yuz berdi, qaytadan urinib ko'ring.");
-    }
-  };
-
-  const handleOk = async () => {
-    try {
-      await sendCardDetails();
-    } catch (error) {
-      console.error("Error during card handling:", error);
+      alertError("Tasdiqlashda xato yuz berdi, qaytadan urinib ko'ring.");
     }
   };
 
@@ -161,11 +158,24 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
 
   const handleCancel = () => {
     setOpenModal(false);
+    reset();
   };
 
   const startCooldown = () => {
     setIsCooldown(true);
     setTimer(30);
+  };
+
+  const reset = () => {
+    setCardDetails({
+      cardNumber: "",
+      expiryMonth: `${(new Date().getMonth() + 1).toString().padStart(2, "0")}`,
+      expiryYear: `${new Date().getFullYear().toString().slice(-2)}`,
+      contractId: "",
+      pinfl: "",
+      userPhone: "",
+    });
+    setOtpValue("");
   };
 
   useEffect(() => {
@@ -183,20 +193,20 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
 
   const onChange: OTPProps["onChange"] = text => {
     handleAppendCard(text);
+    setOtpLoading(true);
   };
 
   return (
     <Modal
       title="Yangi karta qo'shish"
       open={openModal}
-      onOk={handleOk}
       okText="Kartani qo'shish"
-      confirmLoading={loading}
+      confirmLoading={otpLoading}
       cancelText="Bekor qilish"
       onCancel={handleCancel}
       width={540}
       maskClosable={false}
-      okButtonProps={{ disabled: !validateFields() || isCooldown }}
+      footer={null}
     >
       <MockupCard
         cardNumber={applyZeroMasking(cardDetails.cardNumber)}
@@ -274,20 +284,25 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
               size="large"
               onClick={sendCardDetails}
               disabled={isCooldown}
+              loading={loading}
+              style={{ marginTop: "10px" }}
             >
               Tasdiqlash kodini yuborish <SendOutlined />
             </Button>
           )}
         </Flex>
       </Space>
-      {openOtp && isCooldown && (
+      {isCooldown && (
         <>
-          <Divider style={{ marginTop: "10px" }}>Kartani tasdiqlash</Divider>
+          <Divider style={{ marginTop: "10px" }}>
+            Kartani tasdiqlash uchun{" "}
+          </Divider>
           <Flex gap={10} vertical>
             <Input.OTP
               size="large"
               style={{ marginInline: "auto" }}
               onChange={onChange}
+              value={otpValue}
             />
           </Flex>
         </>

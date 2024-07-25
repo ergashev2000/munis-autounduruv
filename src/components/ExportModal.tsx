@@ -25,20 +25,11 @@ const DashboardLineChart: React.FC = () => {
   const [data, setData] = useState<DataEntry[]>([]);
   const [filteredData, setFilteredData] = useState<DataEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
   const [dateRange, setDateRange] = useState<[Moment | null, Moment | null]>([
     null,
     null,
   ]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    filterData();
-  }, [data, period, dateRange]);
 
   const fetchData = async () => {
     try {
@@ -83,7 +74,6 @@ const DashboardLineChart: React.FC = () => {
       setData(sampleData);
       setLoading(false);
     } catch (error) {
-      setError(error.message);
       setLoading(false);
     }
   };
@@ -135,12 +125,16 @@ const DashboardLineChart: React.FC = () => {
     setDateRange(clonedDates);
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    filterData();
+  }, [data, period, dateRange]);
+
   if (loading) {
     return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
   }
 
   return (

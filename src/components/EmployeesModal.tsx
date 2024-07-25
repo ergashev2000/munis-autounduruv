@@ -16,6 +16,13 @@ import { EmployeesType } from "../types/EmployeesType";
 import { PositionType } from "../types/PositionsType";
 import { BranchsType } from "../types/BranchsType";
 import { getAll } from "../services/api/crudApi";
+import { handleError } from "@utils/handleError";
+import { alertSuccess } from "@utils/toastify";
+
+interface Branch {
+  id: string;
+  name: string;
+}
 
 interface EmployeesModalProps {
   openModal: boolean;
@@ -24,8 +31,6 @@ interface EmployeesModalProps {
   onUpdate?: (id: string, data: EmployeesType) => void;
   initialData?: EmployeesType | null;
   setInitialData?: ((data: EmployeesType | null) => void) | undefined;
-  error?: string | null;
-  loading?: boolean;
 }
 
 const EmployeesModal: React.FC<EmployeesModalProps> = ({
@@ -35,10 +40,9 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
   onUpdate,
   initialData,
   setInitialData,
-  error,
-  loading = false,
 }) => {
   const [branchsLoading, setBranchsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState<PositionType[]>([]);
   const [branches, setBranches] = useState<BranchsType[]>([]);
   const [checkboxValues, setCheckboxValues] = useState({
@@ -46,7 +50,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
     excel: false,
   });
   const [form] = Form.useForm();
-  const [selectedBranchIds, setSelectedBranchIds] = useState<BranchsType[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [selectedBranchIds, setSelectedBranchIds] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +64,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
         setPositions(positionsData);
         setBranches(branchesData);
       } catch (error) {
-        message.error("An error occurred while fetching data");
+        message.error("Ma'lumotlarni olishda xatolik yuz berdi!");
       } finally {
         setBranchsLoading(false);
       }
@@ -71,6 +76,13 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
   useEffect(() => {
     if (openModal) {
       if (initialData) {
+        const transformedBranches = (
+          initialData?.userBranches as unknown as Branch[]
+        ).map(branch => ({
+          value: branch.id,
+          name: branch.name,
+        }));
+
         form.setFieldsValue({
           username: initialData.username,
           fullName: initialData.fullName,
@@ -79,12 +91,14 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
           positionId: initialData.positionId,
           action: initialData.action,
           excel: initialData.excel,
+          branches: transformedBranches,
         });
-        setSelectedBranchIds(initialData.branches || []);
+
         setCheckboxValues({
           action: initialData.action,
           excel: initialData.excel,
         });
+        setSelectedBranchIds(initialData.userBranches || []);
       } else {
         form.resetFields();
         setSelectedBranchIds([]);
@@ -103,16 +117,19 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
     }));
   };
 
-  const handleBranchChange = (value: BranchsType[]) => {
+  const handleBranchChange = (value: string[]) => {
     setSelectedBranchIds(value);
     form.setFieldsValue({ branches: value });
   };
 
   const handleOk = async () => {
+    setLoading(true);
     try {
       const values = await form.validateFields();
 
-      const obj: EmployeesType = {
+      const branchIds = selectedBranchIds?.map(selected => selected.id);
+
+      const employeesObj: EmployeesType = {
         username: values.username,
         fullName: values.fullName,
         phone: values.phone,
@@ -120,28 +137,29 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
         positionId: values.positionId,
         action: checkboxValues.action,
         excel: checkboxValues.excel,
-        branches: selectedBranchIds,
+        branches: branchIds,
       };
+      console.log(branchIds);
+      console.log(employeesObj);
+
       if (values.password) {
-        obj.password = values.password;
+        employeesObj.password = values.password;
       }
-      console.log(obj);
 
       if (initialData && onUpdate) {
-        onUpdate(initialData.id!, obj);
+        await onUpdate(initialData.id!, employeesObj);
+        alertSuccess("Foydalanuvchi muvaffaqiyatli o'zgartirildi!");
       } else if (onCreate) {
-        onCreate(obj);
+        await onCreate(employeesObj);
+        alertSuccess("Foydalanuvchi muvaffaqiyatli yaratildi!");
       }
-      console.log(error);
-      
-      if (error) {
-        message.error(error);
-        return;
-      }
+
       setOpenModal(false);
       form.resetFields();
     } catch (error) {
-      console.error("Validation failed:", error);
+      handleError(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -169,128 +187,124 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
       maskClosable={false}
       loading={branchsLoading}
     >
-      {branchsLoading ? (
-        <Typography.Text>Loading...</Typography.Text>
-      ) : (
-        <Form form={form} layout="vertical">
-          <Typography.Title level={4}>
-            Foydalanuvchi ma'lumotlari
-          </Typography.Title>
-          <Row gutter={20}>
-            <Col span={12}>
-              <Form.Item
-                label="F.I.SH"
-                name="fullName"
-                rules={[
-                  { required: true, message: "Please input the full name!" },
+      <Form form={form} layout="vertical">
+        <Typography.Title level={4}>
+          Foydalanuvchi ma'lumotlari
+        </Typography.Title>
+        <Row gutter={20}>
+          <Col span={12}>
+            <Form.Item
+              label="F.I.SH"
+              name="fullName"
+              rules={[
+                { required: true, message: "Please input the full name!" },
+              ]}
+            >
+              <Input placeholder="F.I.SH" size="large" />
+            </Form.Item>
+            <Form.Item
+              label="Telefon raqam"
+              name="phone"
+              rules={[
+                { required: true, message: "Please input the phone number!" },
+              ]}
+            >
+              <Input placeholder="Telefon raqam..." size="large" />
+            </Form.Item>
+            <Form.Item
+              label="Login"
+              name="username"
+              rules={[{ required: true, message: "Please input the login!" }]}
+            >
+              <Input placeholder="Login..." size="large" />
+            </Form.Item>
+            <Form.Item
+              label="Parol"
+              name="password"
+              rules={[
+                {
+                  required: !initialData,
+                  message: "Please input the password!",
+                },
+              ]}
+            >
+              <Input.Password
+                placeholder="Parol..."
+                iconRender={visible =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+                size="large"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Status"
+              name="status"
+              rules={[{ required: true, message: "Please select the status!" }]}
+            >
+              <Select
+                style={{ width: "100%" }}
+                options={[
+                  { value: true, label: "Faol" },
+                  { value: false, label: "Nofaol" },
                 ]}
-              >
-                <Input placeholder="F.I.SH" size="large" />
-              </Form.Item>
-              <Form.Item
-                label="Telefon raqam"
-                name="phone"
-                rules={[
-                  { required: true, message: "Please input the phone number!" },
-                ]}
-              >
-                <Input placeholder="Telefon raqam..." size="large" />
-              </Form.Item>
-              <Form.Item
-                label="Login"
-                name="username"
-                rules={[{ required: true, message: "Please input the login!" }]}
-              >
-                <Input placeholder="Login..." size="large" />
-              </Form.Item>
-              <Form.Item
-                label="Parol"
-                name="password"
-                rules={[
-                  {
-                    required: !initialData,
-                    message: "Please input the password!",
-                  },
-                ]}
-              >
-                <Input.Password
-                  placeholder="Parol..."
-                  iconRender={visible =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Status"
-                name="status"
-                rules={[
-                  { required: true, message: "Please select the status!" },
-                ]}
-              >
-                <Select
-                  style={{ width: "100%" }}
-                  options={[
-                    { value: true, label: "Faol" },
-                    { value: false, label: "Nofaol" },
-                  ]}
-                  size="large"
-                />
-              </Form.Item>
-              <Form.Item
-                label="Lavozim"
-                name="positionId"
-                rules={[
-                  { required: true, message: "Please select the position!" },
-                ]}
-              >
-                <Select
-                  style={{ width: "100%" }}
-                  options={positions.map(pos => ({
-                    value: pos.id,
-                    label: pos.name,
-                  }))}
-                  size="large"
-                />
-              </Form.Item>
-              <Form.Item label="Filiallar" name="branches">
-                <Select
-                  mode="multiple"
-                  style={{ width: "100%" }}
-                  placeholder="Please select"
-                  value={selectedBranchIds}
-                  onChange={handleBranchChange}
-                  options={branches.map(branch => ({
-                    value: branch.id,
-                    label: branch.name,
-                  }))}
-                  size="large"
-                />
-              </Form.Item>
-              <Form.Item>
+                size="large"
+              />
+            </Form.Item>
+            <Form.Item
+              label="Lavozim"
+              name="positionId"
+              rules={[
+                { required: true, message: "Please select the position!" },
+              ]}
+            >
+              <Select
+                style={{ width: "100%" }}
+                options={positions.map(pos => ({
+                  value: pos.id,
+                  label: pos.name,
+                }))}
+                size="large"
+              />
+            </Form.Item>
+            <Form.Item label="Filiallar" name="branches">
+              <Select
+                mode="multiple"
+                style={{ width: "100%" }}
+                placeholder="Please select"
+                onChange={handleBranchChange}
+                options={branches.map(branch => ({
+                  value: branch.id,
+                  label: branch.name,
+                }))}
+                size="large"
+              />
+            </Form.Item>
+            <Form.Item>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <Checkbox
                   name="action"
                   checked={checkboxValues.action}
                   onChange={handleCheckboxChange}
                 >
-                  Action Huquqi
+                  Amallar bajarish huquqi
                 </Checkbox>
                 <Checkbox
                   name="excel"
                   checked={checkboxValues.excel}
                   onChange={handleCheckboxChange}
                 >
-                  Excel Huquqi
+                  Excel yuklab olish huquqi
                 </Checkbox>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      )}
+              </div>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
     </Modal>
   );
 };
 
 export default EmployeesModal;
+``;

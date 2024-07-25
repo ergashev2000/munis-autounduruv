@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Input, Modal, Form, Checkbox, Typography, Flex } from "antd";
 import { PositionType } from "../types/PositionsType";
+import { handleError } from "@utils/handleError";
+import { alertSuccess } from "@utils/toastify";
 
 interface Positions {
   openModal: boolean;
@@ -27,11 +29,11 @@ const PositionsModal: React.FC<Positions> = ({
       if (initialData) {
         form.setFieldsValue({
           name: initialData.name,
-          sozlanmalar: initialData.settings,
-          adminHisoboti: initialData.reports,
-          filialMenyusi: initialData.cardActions,
-          kartaBoglash: initialData.dashboard,
-          hisobotlar: initialData.adminReports,
+          settings: initialData.settings,
+          adminReports: initialData.adminReports,
+          cardActions: initialData.cardActions,
+          dashboard: initialData.dashboard,
+          reports: initialData.reports,
         });
       } else {
         form.resetFields();
@@ -45,21 +47,24 @@ const PositionsModal: React.FC<Positions> = ({
       const values = await form.validateFields();
       const obj: PositionType = {
         name: values.name,
-        settings: values.sozlanmalar,
-        dashboard: values.kartaBoglash,
-        reports: values.hisobotlar,
-        cardActions: values.filialMenyusi,
-        adminReports: values.adminHisoboti,
+        settings: values.settings,
+        dashboard: values.dashboard,
+        reports: values.reports,
+        cardActions: values.cardActions,
+        adminReports: values.adminReports,
       };
       if (initialData && onUpdate) {
-        onUpdate(initialData?.id, obj);
+        await onUpdate(initialData?.id, obj);
+        alertSuccess("Lavozim muvaffaqiyatli o'zgartirildi!");
       } else if (onCreate) {
-        onCreate(obj);
+        await onCreate(obj);
+        alertSuccess("Lavozim muvaffaqiyatli yaratildi!");
       }
       setOpenModal(false);
       form.resetFields();
     } catch (error) {
-      console.error("Validation failed:", error);
+      console.log(error);
+      handleError(error);
     } finally {
       setConfirmLoading(false);
     }
@@ -104,21 +109,18 @@ const PositionsModal: React.FC<Positions> = ({
             </Typography.Title>
             <Flex justify="space-between">
               <div style={{ width: "50%" }}>
-                <Form.Item name="sozlanmalar" valuePropName="checked">
+                <Form.Item name="settings" valuePropName="checked">
                   <Checkbox>Sozlanmalar</Checkbox>
                 </Form.Item>
-                <Form.Item name="adminHisoboti" valuePropName="checked">
+                <Form.Item name="adminReports" valuePropName="checked">
                   <Checkbox>Admin Hisoboti</Checkbox>
-                </Form.Item>
-                <Form.Item name="filialMenyusi" valuePropName="checked">
-                  <Checkbox>Filial Menyusi</Checkbox>
                 </Form.Item>
               </div>
               <div style={{ width: "50%" }}>
-                <Form.Item name="kartaBoglash" valuePropName="checked">
+                <Form.Item name="cardActions" valuePropName="checked">
                   <Checkbox>Karta Bog'lash</Checkbox>
                 </Form.Item>
-                <Form.Item name="hisobotlar" valuePropName="checked">
+                <Form.Item name="reports" valuePropName="checked">
                   <Checkbox>Hisobotlar</Checkbox>
                 </Form.Item>
               </div>

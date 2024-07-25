@@ -1,6 +1,7 @@
 export type BranchsType = {
-  id?: string;
+  id: string;
   name: string;
   value: string;
   createdAt?: string;
-}
+  userBranches?: string;
+};

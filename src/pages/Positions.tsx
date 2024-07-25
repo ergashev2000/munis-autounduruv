@@ -9,7 +9,7 @@ export default function Positions() {
       <Flex
         justify="space-between"
         align="center"
-        style={{ paddingBottom: "20px" }}
+        style={{ paddingBottom: "15px" }}
       >
         <Breadcrumb items={positionsBreadcrumbs} />
       </Flex>

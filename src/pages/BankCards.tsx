@@ -1,15 +1,18 @@
+import { Breadcrumb, Flex } from "antd";
 import { bankCardsBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
 import BankCardsTable from "@components/BankCardsTable";
-import BreadcrumbItem from "@components/ui/Breadcrumbs";
-import { Space } from "antd";
 
 export default function BankCards() {
   return (
     <>
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <BreadcrumbItem breadcrumbs={bankCardsBreadcrumbs} />
-        <BankCardsTable />
-      </Space>
+      <Flex
+        justify="space-between"
+        align="center"
+        style={{ paddingBottom: "15px" }}
+      >
+        <Breadcrumb items={bankCardsBreadcrumbs} />
+      </Flex>
+      <BankCardsTable />
     </>
   );
 }

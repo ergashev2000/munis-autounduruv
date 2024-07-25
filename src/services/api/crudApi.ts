@@ -74,6 +74,7 @@ export const getById = async <T>(
 export const create = async <T>(endpoint: string, data: T): Promise<T> => {
   try {
     const response = await axiosInstance.post<ApiResponse<T>>(endpoint, data);
+
     const responseData = response.data.data;
     cache.clear();
     return responseData;

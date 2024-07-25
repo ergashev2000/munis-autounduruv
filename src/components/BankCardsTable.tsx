@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { Table, Input, Space, message, Button } from "antd";
+import { Table, Input, Space, message, Button, Flex } from "antd";
 import {
   SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
+  CreditCardOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
@@ -12,37 +11,38 @@ import { debounce } from "lodash";
 import BankCardAddModal from "./BankCardAddModal";
 import { BankCardTypes } from "../types/BankCardTypes";
 import { PaginatedData } from "../types/PaginatedType";
+import BankCardDrawer from "./BankCardDrawer";
+import moment from "moment";
+import { alertError } from "@utils/toastify";
 
 const BankCardsTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
+  const [openDrawerBar, setOpenDrawerBar] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [initialData, setInitialData] = useState<BankCardTypes | undefined>();
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
     pageSize: 10,
     total: 0,
   });
 
-  const { data, loading, createData, updateData, deleteData } =
-    useFetch<BankCardTypes>("/clients", {
+  const { data, loading, deleteData, refetch } = useFetch<BankCardTypes>(
+    "/clients",
+    {
       search: searchText,
       page: pagination.current,
       pageSize: pagination.pageSize,
-    });
+    }
+  );
+  const [contractId, setContractId] = useState("");
 
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);
   }, 300);
 
-  const handleEdit = (record: BankCardTypes) => {
-    setInitialData(record);
-    setOpenModal(true);
-  };
-
-  const handleDelete = async (id: string | undefined) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteData(id!);
-      message.success("Muvaffaqiyatli o'chirildi");
+      alertError("Shartnoma muvaffaqiyatli o'chirildi");
     } catch (error) {
       console.error("Failed to delete:", error);
       message.error("O'chirishda xato yuz berdi!");
@@ -53,36 +53,16 @@ const BankCardsTable: React.FC = () => {
     setPagination(pagination);
   };
 
-  const handleCreate = async (newData: BankCardTypes) => {
-    try {
-      await createData(newData);
-      setOpenModal(false);
-      message.success("Muvaffaqiyatli qo'shildi");
-    } catch (error) {
-      console.error("Failed to create:", error);
-      message.error("Qo'shishda xato yuz berdi!");
-    }
-  };
-
-  const handleUpdate = async (
-    id: string | undefined,
-    updatedData: BankCardTypes
-  ) => {
-    try {
-      await updateData(id!, updatedData);
-      setOpenModal(false);
-      message.success("Muvaffaqiyatli yangilandi");
-    } catch (error) {
-      console.error("Failed to update:", error);
-      message.error("Yangilashda xato yuz berdi!");
-    }
+  const openDrawer = (id: string) => {
+    setOpenDrawerBar(true);
+    setContractId(id);
   };
 
   const columns: ColumnsType<BankCardTypes> = [
     {
       title: "№",
       dataIndex: "order",
-      width: "0.1%",
+      width: "1%",
       align: "center",
       render: (_, __, index: number) => {
         const { current = 1, pageSize = 10 } = pagination;
@@ -90,47 +70,77 @@ const BankCardsTable: React.FC = () => {
       },
     },
     {
-      title: "Kontrakt ID",
+      title: "Shartnoma ID",
       dataIndex: "contractId",
       key: "contractId",
+      width: "20%",
     },
     {
-      title: "Telefon raqam",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
+      title: "INN raqami",
+      dataIndex: "inn",
+      key: "inn",
+      align: "center",
+      width: "20%",
     },
     {
-      title: "Karta raqami",
-      dataIndex: "cardNumber",
-      key: "cardNumber",
+      title: "Holati",
+      dataIndex: "confirmed",
+      key: "confirmed",
+      align: "center",
+      width: "20%",
+      render: confirmed => (
+        <div style={{ color: "white" }}>
+          {confirmed ? (
+            <span
+              style={{
+                backgroundColor: "green",
+                padding: "4px 10px",
+                borderRadius: "6px",
+              }}
+            >
+              Tasdiqlangan
+            </span>
+          ) : (
+            <span style={{ backgroundColor: "red" }}>Tasdiqlanmagan</span>
+          )}
+        </div>
+      ),
     },
     {
-      title: "Muddati",
-      dataIndex: "cardExpiryDate",
-      key: "cardExpiryDate",
-    },
-    {
-      title: "Filial",
-      dataIndex: "filial",
-      key: "filial",
+      title: "Qo'shilgan vaqti",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      align: "center",
+      width: "20%",
+      render: (value: string) => moment(value).format("DD-MM-YYYY HH:mm"),
     },
     {
       title: "Harakatlar",
       key: "actions",
+      width: "25%",
+      align: "center",
       render: (_, record) => (
-        <Button danger onClick={() => handleDelete(record.id)}>
-          <DeleteOutlined /> O'chirish
-        </Button>
+        <Flex gap={10} justify="center">
+          <Button onClick={() => openDrawer(record.id!)} type="primary">
+            <CreditCardOutlined /> Ulangan kartalarni ko'rish
+          </Button>
+        </Flex>
       ),
     },
   ];
 
   return (
     <>
+      <BankCardDrawer
+        setOpenDrawer={setOpenDrawerBar}
+        openDrawer={openDrawerBar}
+        contractId={contractId}
+        handleDelete={handleDelete}
+      />
       <BankCardAddModal
         openModal={openModal}
         setOpenModal={setOpenModal}
-        loading={loading}
+        refetch={refetch}
       />
       <Space
         direction="horizontal"

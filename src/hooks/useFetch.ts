@@ -8,7 +8,17 @@ import {
   GetAllParams,
 } from "../services/api/crudApi";
 import { AxiosRequestConfig } from "axios";
-import { message } from "antd";
+
+class CustomError extends Error {
+  details?: {
+    message?: string;
+  };
+
+  constructor(message: string, details?: { message?: string }) {
+    super(message);
+    this.details = details;
+  }
+}
 
 interface Entity {
   id?: string;
@@ -31,7 +41,6 @@ interface PaginatedData<T> {
 interface FetchResult<T> {
   data: PaginatedData<T> | T | null;
   loading: boolean;
-  error: string | null;
   refetch: () => void;
   fetchById: (id: string) => Promise<void>;
   createData: (data: T) => Promise<void>;
@@ -48,7 +57,6 @@ const useFetch = <T extends Entity>(
 ): FetchResult<T> => {
   const [data, setData] = useState<PaginatedData<T> | T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -64,7 +72,8 @@ const useFetch = <T extends Entity>(
 
       setData(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      console.log(err);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -81,7 +90,8 @@ const useFetch = <T extends Entity>(
         }
         setData(response);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        console.log(err);
+        throw err;
       } finally {
         setLoading(false);
       }
@@ -98,12 +108,13 @@ const useFetch = <T extends Entity>(
       try {
         const response = await create<T>(url, newData);
         if (!response) {
-          throw new Error("Failed to create data!");
+          throw new CustomError("Failed to create data!");
         }
+
         refetch();
       } catch (err) {
-        message.error(err instanceof Error ? err.message : "An error occurred");
-        setError(err instanceof Error ? err.message : "An error occurred");
+        console.log(err);
+        throw err;
       }
     },
     [url, options, refetch]
@@ -122,7 +133,8 @@ const useFetch = <T extends Entity>(
         }
         refetch();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        console.log(err);
+        throw err;
       }
     },
     [url, options, refetch]
@@ -134,7 +146,8 @@ const useFetch = <T extends Entity>(
         await remove(url, id);
         refetch();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+        console.log(err);
+        throw err;
       }
     },
     [url, options, refetch]
@@ -147,7 +160,6 @@ const useFetch = <T extends Entity>(
   return {
     data,
     loading,
-    error,
     refetch,
     fetchById,
     createData,

@@ -17,7 +17,7 @@ import { AccessIcon, NotAccessIcon } from "../assets/icons/svgs";
 const EmployeesTable: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const searchParams = new URLSearchParams(location.search);
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
 
@@ -31,7 +31,7 @@ const EmployeesTable: React.FC = () => {
     },
   });
 
-  const { data, loading, createData, updateData, deleteData, error } =
+  const { data, loading, createData, updateData, deleteData } =
     useFetch<EmployeesType>("/users", {
       search: searchText,
       page: tableParams.pagination.current,
@@ -40,7 +40,7 @@ const EmployeesTable: React.FC = () => {
 
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);
-  }, 100);
+  }, 300);
 
   const handleEdit = (record: EmployeesType) => {
     setInitialData(record);
@@ -127,14 +127,19 @@ const EmployeesTable: React.FC = () => {
       align: "center",
       render: (_, record) => (
         <Space size="middle">
-          <Button icon={<FilePenLine />} onClick={() => handleEdit(record)} />
+          <Button onClick={() => handleEdit(record)}>
+            <FilePenLine size={16} />
+            O'zgartirish
+          </Button>
           <Popconfirm
             title="Ishonchingiz komilmi?"
             onConfirm={() => deleteData(record.id!)}
             okText="Ha"
             cancelText="Yo'q"
           >
-            <Button danger icon={<Trash2 />} />
+            <Button danger>
+              <Trash2 size={16} /> O'chirish
+            </Button>
           </Popconfirm>
         </Space>
       ),
@@ -150,22 +155,24 @@ const EmployeesTable: React.FC = () => {
         onUpdate={updateData}
         initialData={initialData}
         setInitialData={setInitialData}
-        error={error}
-        loading={loading}
       />
-      <Flex justify="space-between" align="center" style={{ marginBottom: "10px" }}>
+      <Flex
+        justify="space-between"
+        align="center"
+        style={{ marginBottom: "10px" }}
+      >
         <Input
           placeholder="Qidirish"
           prefix={<SearchOutlined />}
           onChange={e => handleSearchChange(e.target.value)}
-          style={{width: "400px"}}
+          style={{ width: "400px" }}
         />
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => setOpenModal(true)}
         >
-          Qo'shish
+          Foydalanuvchi qo'shish
         </Button>
       </Flex>
       <Table

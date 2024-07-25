@@ -9,7 +9,8 @@ export type EmployeesType = {
   positionId: string | null;
   action: boolean;
   excel: boolean;
-  branches: BranchsType[];
+  branches: BranchsType[] | string[];
+  userBranches?: string[];
   position?: string | null;
   password?: string;
 };

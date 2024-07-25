@@ -1,20 +1,16 @@
-import { Breadcrumb, Flex, Space } from "antd";
+import { Breadcrumb, Flex } from "antd";
 import EmployeesTable from "@components/EmployeesTable";
 import { employeesBreadcrumbs } from "@components/ui/Breadcrumbs/breadcrumbsData";
-import ExportDropdown from "@components/ui/ExportDropdown";
 
 export default function Employees() {
   return (
     <>
       <Flex
-        style={{ paddingBottom: "20px" }}
+        style={{ paddingBottom: "15px" }}
         justify="space-between"
         align="center"
       >
         <Breadcrumb items={employeesBreadcrumbs} />
-        <Space>
-          <ExportDropdown />
-        </Space>
       </Flex>
       <EmployeesTable />
     </>
