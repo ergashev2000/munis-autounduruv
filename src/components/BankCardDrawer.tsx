@@ -15,6 +15,11 @@ import { DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { alertError, alertWarning } from "@utils/toastify";
 import { handleError } from "@utils/handleError";
+import { scanCard } from "@utils/scanCards";
+
+import Humo from "../assets/icons/humo-logo.jpg";
+import UzCard from "../assets/icons/my_uzcard.png";
+import { useAuth } from "../context/AuthContext";
 
 const { Title, Text } = Typography;
 
@@ -62,10 +67,11 @@ export default function BankCardDrawer({
 }: BankCardDrawerProps) {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const { user } = useAuth();
+  console.log(user);
 
   const sendCardDetails = async (id: string) => {
     setLoading(true);
-
     try {
       const response = await axiosInstance.get(`/clients/${id}`);
       setUserData(response.data.data);
@@ -80,7 +86,7 @@ export default function BankCardDrawer({
   const removeCard = async (clientId: string, cardId: number) => {
     setLoading(true);
     try {
-      await axiosInstance.delete(`/clients/${clientId}?cardId=${cardId}`);
+      await axiosInstance.delete(`/clients/card/${clientId}?cardId=${cardId}`);
       sendCardDetails(contractId);
     } catch (error) {
       console.error("Error sending card details:", error);
@@ -109,10 +115,11 @@ export default function BankCardDrawer({
     return balance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   };
 
-  const handleDeleteContract = () => {
+  const handleDeleteContract = async () => {
     try {
       if (userData?.cards.length === 0) {
-        handleDelete(contractId);
+        await handleDelete(contractId);
+        setOpenDrawer(false);
       } else {
         alertWarning(
           `${userData?.contractId} shartnomasiga ulangan kartalar mavjud! Avval karta ma'lumotlarini o'chiring.`
@@ -138,33 +145,33 @@ export default function BankCardDrawer({
         </Flex>
       ) : (
         <>
-          <header>
-            <Flex justify="end">
-              <Popconfirm
-                placement="topRight"
-                title={"Shartnomani o'chirishni tasdiqlaysizmi?"}
-                description={
-                  "Mijozga biriktirilgan barcha karta ma'lumotlari o'chib ketadi!"
-                }
-                okText="Tasdiqlayman"
-                cancelText="bekor qilish"
-                onConfirm={handleDeleteContract}
-              >
-                <Button danger type="primary">
-                  <DeleteOutlined />
-                  Shartnomani o'chirish
-                </Button>
-              </Popconfirm>
-            </Flex>
-          </header>
+          {user?.permissions.action && (
+            <header>
+              <Flex justify="end">
+                <Popconfirm
+                  placement="topRight"
+                  title={"Shartnomani o'chirishni tasdiqlaysizmi?"}
+                  description={
+                    "Mijozga biriktirilgan barcha karta ma'lumotlari o'chib ketadi!"
+                  }
+                  okText="Tasdiqlayman"
+                  cancelText="bekor qilish"
+                  onConfirm={handleDeleteContract}
+                >
+                  <Button danger type="primary" loading={loading}>
+                    <DeleteOutlined />
+                    Shartnomani o'chirish
+                  </Button>
+                </Popconfirm>
+              </Flex>
+            </header>
+          )}
           {userData && (
             <>
               <Title level={4}>
                 <span> Shartnoma raqami: </span>
                 <span style={{ color: "red" }}>{userData.contractId}</span>
               </Title>
-              <Text strong>INN: </Text>
-              <Text>{userData.inn}</Text>
               <br />
               <Text strong>Holati: </Text>
               <Text>
@@ -213,26 +220,27 @@ export default function BankCardDrawer({
                     title={card.owner}
                     style={{ marginBottom: "16px", position: "relative" }}
                   >
-                    <Popconfirm
-                      placement="topRight"
-                      title={"Mijoz kartasini o'chirishni tasdiqlaysizmi?"}
-                      okText="Tasdiqlayman!"
-                      cancelText="Bekor qilish"
-                      onConfirm={() => removeCard(userData.id, card.id)}
-                    >
-                      <Button
-                        danger
-                        size="small"
-                        style={{
-                          position: "absolute",
-                          right: "10px",
-                          top: "12px",
-                        }}
+                    {user?.permissions.action && (
+                      <Popconfirm
+                        placement="topRight"
+                        title={"Mijoz kartasini o'chirishni tasdiqlaysizmi?"}
+                        okText="Tasdiqlayman!"
+                        cancelText="Bekor qilish"
+                        onConfirm={() => removeCard(userData.id, card.id)}
                       >
-                        <DeleteOutlined />
-                        Kartani o'chirish
-                      </Button>
-                    </Popconfirm>
+                        <Button
+                          danger
+                          style={{
+                            position: "absolute",
+                            right: "10px",
+                            top: "12px",
+                          }}
+                        >
+                          <DeleteOutlined />
+                          Kartani o'chirish
+                        </Button>
+                      </Popconfirm>
+                    )}
                     <Flex gap={10}>
                       <Text strong>Karta raqami:</Text>{" "}
                       <span>{card.number}</span>
@@ -248,8 +256,8 @@ export default function BankCardDrawer({
                       </span>
                     </Flex>
                     <Flex gap={10}>
-                      <Text strong>Ishonchli:</Text>{" "}
-                      {card.isTrusted ? "Ha" : "Yo'q"}
+                      <Text strong>Mijoz roziligi:</Text>{" "}
+                      {card.isTrusted ? "Tasdiqlangan" : "Tasdiqlanmagan"}
                     </Flex>
                     <Flex gap={10}>
                       <Text strong>Status:</Text> {card.status}
@@ -261,11 +269,29 @@ export default function BankCardDrawer({
                       <Text strong>SMS xabarnoma:</Text>{" "}
                       {card.isSmsActivated ? "Mavjud" : "Mavjud emas"}
                     </Flex>
+                    <div
+                      style={{
+                        height: "40px",
+                        position: "absolute",
+                        right: "20px",
+                        bottom: "20px",
+                      }}
+                    >
+                      {["UZCARD", "HUMO"].includes(scanCard(card?.number)) && (
+                        <img
+                          src={
+                            scanCard(card?.number) === "UZCARD" ? UzCard : Humo
+                          }
+                          alt="Plastik karta icon"
+                          style={{ height: "40px", width: "100%" }}
+                        />
+                      )}
+                    </div>
                   </Card>
                 ))
               ) : (
                 <Flex justify="center">
-                  <Empty />
+                  <Empty description={"Kartalar mavjud emas"} />
                 </Flex>
               )}
             </>

@@ -9,6 +9,7 @@ import {
   message,
   Progress,
   Flex,
+  Spin,
 } from "antd";
 import axiosInstance from "../config/axiosInstance";
 import { SendOutlined } from "@ant-design/icons";
@@ -50,6 +51,7 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
   const [otpValue, setOtpValue] = useState("");
   const [isCooldown, setIsCooldown] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+  const [openOtpInput, setOpenOtpInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState<number>(30);
 
@@ -186,14 +188,16 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
       }, 1000);
     } else if (timer === 0) {
       setIsCooldown(false);
+      setOpenOtpInput(true);
     }
 
     return () => clearInterval(interval);
   }, [isCooldown, timer]);
 
-  const onChange: OTPProps["onChange"] = text => {
+  const onChange: OTPProps["onChange"] = (text: string) => {
     handleAppendCard(text);
     setOtpLoading(true);
+    message.success(`${cardDetails?.userPhone} raqamiga SMS kod yuborildi!`);
   };
 
   return (
@@ -201,10 +205,9 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
       title="Yangi karta qo'shish"
       open={openModal}
       okText="Kartani qo'shish"
-      confirmLoading={otpLoading}
       cancelText="Bekor qilish"
       onCancel={handleCancel}
-      width={540}
+      width={600}
       maskClosable={false}
       footer={null}
     >
@@ -272,10 +275,9 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
               <p>Tasdiqlash kodini 30 soniyadan so'ng qayta yubora olasiz!</p>
               <Progress
                 type="circle"
-                percent={timer}
+                percent={timer * 3.33}
                 size={40}
-                format={percent => `${percent} s`}
-                strokeColor={{ "0%": "#87d068", "100%": "#ff4d4f" }}
+                format={percent => `${Math.ceil(percent! / 3.33)} s`}
               />
             </Flex>
           ) : (
@@ -292,7 +294,7 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
           )}
         </Flex>
       </Space>
-      {isCooldown && (
+      {openOtpInput && (
         <>
           <Divider style={{ marginTop: "10px" }}>
             Kartani tasdiqlash uchun{" "}
@@ -304,6 +306,7 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
               onChange={onChange}
               value={otpValue}
             />
+            <Spin spinning={otpLoading} delay={500} />
           </Flex>
         </>
       )}

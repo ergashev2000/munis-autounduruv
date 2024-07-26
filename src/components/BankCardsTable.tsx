@@ -1,23 +1,29 @@
 import React, { useState } from "react";
+import moment from "moment";
+import { debounce } from "lodash";
 import { Table, Input, Space, message, Button, Flex } from "antd";
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import {
   SearchOutlined,
   CreditCardOutlined,
   PlusCircleOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
-import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+
 import useFetch from "../hooks/useFetch";
-import { debounce } from "lodash";
 import BankCardAddModal from "./BankCardAddModal";
+import BankCardDrawer from "./BankCardDrawer";
 import { BankCardTypes } from "../types/BankCardTypes";
 import { PaginatedData } from "../types/PaginatedType";
-import BankCardDrawer from "./BankCardDrawer";
-import moment from "moment";
 import { alertError } from "@utils/toastify";
+import BankCardWithdrawModal from "./BankCardWithdrawModal";
 
 const BankCardsTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [openDrawerBar, setOpenDrawerBar] = useState(false);
+  const [openWithdrawModal, setOpenWithdrawModal] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
@@ -74,13 +80,7 @@ const BankCardsTable: React.FC = () => {
       dataIndex: "contractId",
       key: "contractId",
       width: "20%",
-    },
-    {
-      title: "INN raqami",
-      dataIndex: "inn",
-      key: "inn",
-      align: "center",
-      width: "20%",
+      render: value => <span style={{ color: "#1677FF", fontWeight: "500" }}>{value}</span>,
     },
     {
       title: "Holati",
@@ -98,10 +98,13 @@ const BankCardsTable: React.FC = () => {
                 borderRadius: "6px",
               }}
             >
-              Tasdiqlangan
+              <CheckOutlined /> Tasdiqlangan
             </span>
           ) : (
-            <span style={{ backgroundColor: "red" }}>Tasdiqlanmagan</span>
+            <span style={{ backgroundColor: "red" }}>
+              <CloseOutlined />
+              Tasdiqlanmagan
+            </span>
           )}
         </div>
       ),
@@ -117,11 +120,11 @@ const BankCardsTable: React.FC = () => {
     {
       title: "Harakatlar",
       key: "actions",
-      width: "25%",
+      width: "15%",
       align: "center",
       render: (_, record) => (
         <Flex gap={10} justify="center">
-          <Button onClick={() => openDrawer(record.id!)} type="primary">
+          <Button onClick={() => openDrawer(record.id!)}>
             <CreditCardOutlined /> Ulangan kartalarni ko'rish
           </Button>
         </Flex>
@@ -131,6 +134,10 @@ const BankCardsTable: React.FC = () => {
 
   return (
     <>
+      <BankCardWithdrawModal
+        openModal={openWithdrawModal}
+        setOpenModal={setOpenWithdrawModal}
+      />
       <BankCardDrawer
         setOpenDrawer={setOpenDrawerBar}
         openDrawer={openDrawerBar}
@@ -157,12 +164,18 @@ const BankCardsTable: React.FC = () => {
           style={{ width: 400 }}
           allowClear
         />
-        <Button type="primary" onClick={() => setOpenModal(true)}>
-          <PlusCircleOutlined /> Karta qo'shish
-        </Button>
+        <Space>
+          <Button type="primary" onClick={() => setOpenWithdrawModal(true)}>
+            <WalletOutlined /> Kartadan pul yechish
+          </Button>
+          <Button type="primary" onClick={() => setOpenModal(true)}>
+            <PlusCircleOutlined /> Karta qo'shish
+          </Button>
+        </Space>
       </Space>
       <Table<BankCardTypes>
         className="custom-table"
+        size="small"
         columns={columns}
         dataSource={
           Array.isArray(data)

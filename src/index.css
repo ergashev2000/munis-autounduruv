@@ -6,9 +6,9 @@
   box-sizing: border-box;
 }
 
-.rhap_container{
+.rhap_container {
   border-radius: 16px;
-  box-shadow: none!important;
+  box-shadow: none !important;
 }
 
 
@@ -24,7 +24,11 @@
   z-index: 1;
 }
 
-.ant-otp-input{
+.ant-otp-input {
   font-size: 18px;
   font-weight: 600;
+}
+
+.Toastify__toast-container {
+  width: 500px !important;
 }
