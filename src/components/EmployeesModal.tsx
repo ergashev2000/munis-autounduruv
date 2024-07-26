@@ -9,6 +9,7 @@ import {
   Checkbox,
   message,
   Col,
+  Flex,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
@@ -61,6 +62,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
           getAll<PositionType[]>("/positions"),
           getAll<BranchsType[]>("/branches"),
         ]);
+
         setPositions(positionsData);
         setBranches(branchesData);
       } catch (error) {
@@ -118,6 +120,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
   };
 
   const handleBranchChange = (value: string[]) => {
+    console.log(value);
+
     setSelectedBranchIds(value);
     form.setFieldsValue({ branches: value });
   };
@@ -127,7 +131,9 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
     try {
       const values = await form.validateFields();
 
-      const branchIds = selectedBranchIds?.map(selected => selected.id);
+      const branchIds = selectedBranchIds?.filter(selected =>
+        selected.id ? selected.id : selected
+      );
 
       const employeesObj: EmployeesType = {
         username: values.username,
@@ -139,8 +145,6 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
         excel: checkboxValues.excel,
         branches: branchIds,
       };
-      console.log(branchIds);
-      console.log(employeesObj);
 
       if (values.password) {
         employeesObj.password = values.password;
@@ -181,7 +185,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
       onOk={handleOk}
       onCancel={handleCancel}
       width={800}
-      okText="Tasdiqlash"
+      okText="Saqlash"
       cancelText="Bekor qilish"
       confirmLoading={loading}
       maskClosable={false}
@@ -282,7 +286,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
               />
             </Form.Item>
             <Form.Item>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+              <Flex vertical gap={20}>
                 <Checkbox
                   name="action"
                   checked={checkboxValues.action}
@@ -297,7 +301,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
                 >
                   Excel yuklab olish huquqi
                 </Checkbox>
-              </div>
+              </Flex>
             </Form.Item>
           </Col>
         </Row>
@@ -307,4 +311,3 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
 };
 
 export default EmployeesModal;
-``;

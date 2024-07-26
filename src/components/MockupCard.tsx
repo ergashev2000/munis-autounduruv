@@ -13,7 +13,7 @@ import { formatPhoneNumber } from "@utils/formatCardData";
 interface CardProps {
   cardNumber: string;
   expiryDate: string;
-  userPhone: string;
+  userPhone?: string;
 }
 
 const MockupCard: React.FC<CardProps> = ({
@@ -52,7 +52,11 @@ const MockupCard: React.FC<CardProps> = ({
           </div>
         </div>
         <Flex align="end" justify="space-between">
-          <h3 className="mockup-card-fullname">{formatPhoneNumber(userPhone)}</h3>
+          {userPhone && (
+            <h3 className="mockup-card-fullname">
+              {formatPhoneNumber(userPhone)}
+            </h3>
+          )}
           <div className="mockup-card-symbal">
             {["UZCARD", "HUMO"].includes(isCorrectCard) && (
               <img
