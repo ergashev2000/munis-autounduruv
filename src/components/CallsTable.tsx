@@ -7,6 +7,7 @@ import {
   PauseCircleOutlined,
   CloseCircleOutlined,
   DownloadOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
 
 import { CallSettings } from "../types/CallSettingsTypes";
@@ -40,7 +41,7 @@ const CallsTable: React.FC = () => {
 
   const handleSearchChange = debounce((value: string) => {
     setSearchText(value);
-  }, 100);
+  }, 300);
 
   const handleTableChange: TableProps<CallSettings>["onChange"] =
     pagination => {
@@ -131,14 +132,14 @@ const CallsTable: React.FC = () => {
         ) : (
           <span
             style={{
-              border: "1px solid #1f8a2e",
+              border: "1px solid #b81212",
               borderRadius: "4px",
-              backgroundColor: "#1f8a2e",
+              backgroundColor: "#b81212",
               color: "white",
               paddingInline: "14px",
             }}
           >
-            Faol
+            Nofaol
           </span>
         ),
     },
@@ -146,7 +147,7 @@ const CallsTable: React.FC = () => {
       title: "Harakatlar",
       dataIndex: "actions",
       width: "20%",
-      render: (_, record) => (
+      render: () => (
         <Space size="large">
           <Select defaultValue="start" style={{ width: 200 }}>
             <Option value="start">
@@ -197,7 +198,7 @@ const CallsTable: React.FC = () => {
               <DownloadOutlined /> Export
             </Button>
             <Button type="primary" onClick={() => setOpenModal(true)}>
-              Qo'ng'iroqlar qo'shish
+              <PlusCircleOutlined /> Qo'ng'iroqlar qo'shish
             </Button>
           </Space>
         </Col>

@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+import { message } from "antd";
 import React, {
   createContext,
   useContext,
@@ -5,12 +7,13 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import axiosInstance from "../config/axiosInstance";
-import Cookies from "js-cookie";
-import { getAccessTokenFromCookie, setCookie } from "@utils/cookies";
-import { message } from "antd";
-import { useNavigate } from "react-router-dom";
+import {
+  getAccessTokenFromCookie,
+  removeCookie,
+  setCookie,
+} from "@utils/cookies";
 import { UserType } from "../types/UserType";
+import axiosInstance from "../config/axiosInstance";
 
 type AuthContextType = {
   user: UserType | null;
@@ -44,7 +47,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setUser(data.data);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.error("Foydalanuvchi ma'lumotlarini yuklashda xatolik:", error);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -69,16 +72,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         username,
         password,
       });
-      const { accessToken, refreshToken, permissions } = data.data;
+      const { accessToken, refreshToken } = data.data;
 
-      if (accessToken && refreshToken && Object.keys(permissions).length > 0) {
+      if (accessToken && refreshToken) {
         setCookie("accessToken", accessToken.token, {
           expires: new Date(accessToken.expiresIn),
         });
         setCookie("refreshToken", refreshToken.token, {
-          expires: new Date(refreshToken.expiresIn),
-        });
-        setCookie("permissions", permissions, {
           expires: new Date(refreshToken.expiresIn),
         });
 
@@ -87,7 +87,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         ] = `Bearer ${accessToken.token}`;
 
         setIsAuthenticated(true);
-        message.success("Login successful! Redirecting to dashboard...");
+        message.success(
+          "Kirish muvaffaqiyatli amalga oshirildi! Tegishli sahifaga yoʻnaltirilmoqda..."
+        );
         navigate("/dashboard");
 
         getMe().catch(error =>
@@ -104,7 +106,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const logout = () => {
-    Cookies.remove("accessToken");
+    removeCookie("accessToken");
+    removeCookie("refreshToken");
     setUser(null);
     setIsAuthenticated(false);
     navigate("/auth/login");

@@ -123,14 +123,7 @@ const useFetch = <T extends Entity>(
   const updateData = useCallback(
     async (idOrProductId: string, updatedData: Partial<T & Entity>) => {
       try {
-        const response = await update<T & Entity>(
-          url,
-          idOrProductId,
-          updatedData
-        );
-        if (!response) {
-          throw new Error("Failed to update data!");
-        }
+        await update<T & Entity>(url, idOrProductId, updatedData);
         refetch();
       } catch (err) {
         console.log(err);

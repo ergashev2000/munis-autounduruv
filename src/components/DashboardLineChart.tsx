@@ -9,10 +9,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Button, Col, DatePicker, Flex, Space, Typography } from "antd";
-import moment, { Moment } from "moment";
+import { Col, Flex, Space, Typography } from "antd";
+import moment from "moment";
 
-const { RangePicker } = DatePicker;
+// const { RangePicker } = DatePicker;
 
 interface DataEntry {
   name: string;
@@ -22,23 +22,22 @@ interface DataEntry {
 }
 
 const DashboardLineChart: React.FC = () => {
-  const [data, setData] = useState<DataEntry[]>([]);
-  const [filteredData, setFilteredData] = useState<DataEntry[]>([]);
+  // const [data, setData] = useState<DataEntry[]>([]);
+  // const [filteredData, setFilteredData] = useState<DataEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
-  const [dateRange, setDateRange] = useState<[Moment | null, Moment | null]>([
-    null,
-    null,
-  ]);
+  // const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
+  // const [dateRange, setDateRange] = useState<[Moment | null, Moment | null]>([
+  //   null,
+  //   null,
+  // ]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    filterData();
-  }, [data, period, dateRange]);
+  // useEffect(() => {
+  //   filterData();
+  // }, [data, period]);
 
   const fetchData = async () => {
     try {
@@ -80,67 +79,62 @@ const DashboardLineChart: React.FC = () => {
 
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      setData(sampleData);
+      // setData(sampleData);
       setLoading(false);
     } catch (error) {
-      setError(error.message);
       setLoading(false);
     }
   };
 
-  const filterData = () => {
-    let filtered = data;
+  // const filterData = () => {
+  //   let filtered = data;
 
-    if (dateRange[0] && dateRange[1]) {
-      const [start, end] = dateRange.map(date => date?.format("YYYY-MM-DD"));
+  //   if (dateRange[0] && dateRange[1]) {
+  //     const [start, end] = dateRange.map(date => date?.format("YYYY-MM-DD"));
 
-      if (period === "monthly") {
-        const adjustedStart = moment(start).startOf("month");
-        filtered = data.filter(entry =>
-          moment(entry.name).isBetween(adjustedStart, end, undefined, "[]")
-        );
-      } else {
-        filtered = data.filter(entry =>
-          moment(entry.name).isBetween(start, end, undefined, "[]")
-        );
-      }
-    } else {
-      if (period === "weekly") {
-        const end = moment().endOf("day");
-        const start = moment().subtract(6, "days").startOf("day");
-        filtered = data.filter(entry =>
-          moment(entry.name).isBetween(start, end, undefined, "[]")
-        );
-      } else if (period === "monthly") {
-        const end = moment().endOf("day");
-        const start = moment().subtract(1, "month").startOf("day");
-        filtered = data.filter(entry =>
-          moment(entry.name).isBetween(start, end, undefined, "[]")
-        );
-      }
-    }
+  //     if (period === "monthly") {
+  //       const adjustedStart = moment(start).startOf("month");
+  //       filtered = data.filter(entry =>
+  //         moment(entry.name).isBetween(adjustedStart, end, undefined, "[]")
+  //       );
+  //     } else {
+  //       filtered = data.filter(entry =>
+  //         moment(entry.name).isBetween(start, end, undefined, "[]")
+  //       );
+  //     }
+  //   } else {
+  //     if (period === "weekly") {
+  //       const end = moment().endOf("day");
+  //       const start = moment().subtract(6, "days").startOf("day");
+  //       filtered = data.filter(entry =>
+  //         moment(entry.name).isBetween(start, end, undefined, "[]")
+  //       );
+  //     } else if (period === "monthly") {
+  //       const end = moment().endOf("day");
+  //       const start = moment().subtract(1, "month").startOf("day");
+  //       filtered = data.filter(entry =>
+  //         moment(entry.name).isBetween(start, end, undefined, "[]")
+  //       );
+  //     }
+  //   }
 
-    setFilteredData(filtered);
-  };
+  //   setFilteredData(filtered);
+  // };
 
-  const handlePeriodChange = (
-    selectedPeriod: "daily" | "weekly" | "monthly"
-  ) => {
-    setPeriod(selectedPeriod);
-    setDateRange([null, null]);
-  };
+  // const handlePeriodChange = (
+  //   selectedPeriod: "daily" | "weekly" | "monthly"
+  // ) => {
+  // setPeriod(selectedPeriod);
+  // setDateRange([null, null]);
+  // };
 
-  const handleDateRangeChange = (dates: [Moment | null, Moment | null]) => {
-    const clonedDates = dates.map(date => (date ? date.clone() : null));
-    setDateRange(clonedDates);
-  };
+  // const handleDateRangeChange = (dates: any[]) => {
+  //   const clonedDates = dates.map(date => (date ? date.clone() : null));
+  //   setDateRange(clonedDates);
+  // };
 
   if (loading) {
     return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
   }
 
   return (
@@ -158,14 +152,14 @@ const DashboardLineChart: React.FC = () => {
           Shartnomalar statistikalari
         </Typography.Title>
         <Space style={{ marginBottom: "20px", marginTop: "20px" }}>
-          <Button onClick={() => handlePeriodChange("daily")}>Kunlik</Button>
+          {/* <Button onClick={() => handlePeriodChange("daily")}>Kunlik</Button>
           <Button onClick={() => handlePeriodChange("weekly")}>Haftalik</Button>
-          <Button onClick={() => handlePeriodChange("monthly")}>Oylik</Button>
-          <RangePicker onChange={handleDateRangeChange} />
+          <Button onClick={() => handlePeriodChange("monthly")}>Oylik</Button> */}
+          {/* <RangePicker onChange={handleDateRangeChange} /> */}
         </Space>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
-            data={filteredData}
+            // data={filteredData}
             margin={{ top: 5, right: 5, left: 5, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="3 3" />

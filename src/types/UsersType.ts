@@ -5,10 +5,9 @@ export type UsersType = {
   username: string;
   fullName: string;
   phone: string;
-  positionId: string;
+  position: string;
   status: boolean;
   action: boolean;
   excel: boolean;
   userBranches: BranchsType[];
-  position: string;
-}
+};

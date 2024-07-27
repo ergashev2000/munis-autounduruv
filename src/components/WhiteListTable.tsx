@@ -1,257 +1,236 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Flex, Input, Popconfirm, Space, Table } from "antd";
-import type { InputRef, TableProps } from "antd";
-import { ColumnsType } from "antd/es/table";
-import { TableParams } from "../types/EmployeesTable";
-import { FilePenLine, Plus, Trash2 } from "lucide-react";
-import WhiteListModal from "./WhiteListModal";
-import axios from "axios";
-import { SearchOutlined } from "@ant-design/icons";
+// import React, { useEffect, useState } from "react";
+// import { Button, Input, Popconfirm, Space, Table } from "antd";
+// import type { TableProps, TablePaginationConfig } from "antd";
+// import { ColumnsType } from "antd/es/table";
+// import { FilePenLine, Plus, Trash2 } from "lucide-react";
+// import WhiteListModal from "./WhiteListModal";
+// import axios from "axios";
+// import { SearchOutlined } from "@ant-design/icons";
 
-interface DataType {
-  id: number;
-  fullname: string;
-  phone: string;
-  created_by_user: string;
-  status: boolean;
-  comment: string;
-  created_at: string;
-  updated_at: string;
-}
+// interface DataType {
+//   id: number;
+//   fullname: string;
+//   phone: string;
+//   created_by_user: string;
+//   status: boolean;
+//   comment: string;
+//   created_at: string;
+//   updated_at: string;
+// }
 
-const exampleData: DataType[] = [
-  {
-    id: 1,
-    fullname: "Islomjon Ergashev",
-    phone: "+998908884433",
-    created_by_user: "Islomjon Ergahev",
-    status: true,
-    comment: "lorem lorem lorem",
-    created_at: "2023-01-01 10:00",
-    updated_at: "2023-01-01 10:00",
-  },
-];
+// const PositionsTable: React.FC = () => {
+//   const [data, setData] = useState<DataType[]>([]);
+//   const [loading, setLoading] = useState(false);
+//   const [openModal, setOpenModal] = useState(false);
+//   const [searchText, setSearchText] = useState("");
+//   const [pagination, setPagination] = useState<TablePaginationConfig>({
+//     current: 1,
+//     pageSize: 10,
+//   });
 
-const PositionsTable: React.FC = () => {
-  const [data, setData] = useState<DataType[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState<string>("");
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-    },
-  });
+//   const handleEdit = (record: DataType) => {
+//     console.log("Edit record:", record);
+//   };
 
-  const handleEdit = (record: DataType) => {
-    console.log("Edit record:", record);
-  };
+//   const handleDelete = (id: number) => {
+//     console.log("Delete record with ID:", id);
+//   };
 
-  const handleDelete = (id: number) => {
-    console.log("Delete record with ID:", id);
-  };
+//   const handleSearch = async (value: string) => {
+//     setSearchText(value);
+//     setLoading(true);
+//     try {
+//       const response = await axios.get<DataType[]>("/api/your-endpoint", {
+//         params: { search: value },
+//       });
 
-  const searchInput = useRef<InputRef | null>(null);
+//       if (Array.isArray(response.data)) {
+//         setData(response.data);
+//         setTableParams(prev => ({
+//           ...prev,
+//           pagination: {
+//             ...prev.pagination!,
+//             total: response.data.length,
+//           },
+//         }));
+//       } else {
+//         console.error("Unexpected API response format:", response.data);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  const handleSearch = async (value: string) => {
-    setSearchText(value);
-    setLoading(true);
+//   const columns: ColumnsType<DataType> = [
+//     {
+//       title: "ID",
+//       dataIndex: "order",
+//       width: "5%",
+//       render: (_, __, index: number) => {
+//         const currentPage = pagination?.current ?? 1;
+//         const pageSize = pagination?.pageSize ?? 10;
+//         return (currentPage - 1) * pageSize + index + 1;
+//       },
+//     },
+//     {
+//       title: "F.I.SH",
+//       dataIndex: "fullname",
+//       width: "20%",
+//       render: val => <span style={{ color: "#1677FF" }}>{val}</span>,
+//     },
+//     {
+//       title: "Telefon Raqami",
+//       dataIndex: "phone",
+//       width: "15%",
+//     },
+//     {
+//       title: "Status",
+//       dataIndex: "status",
+//       width: "10%",
+//       align: "center",
+//       render: (status: boolean) =>
+//         status ? (
+//           <div
+//             style={{
+//               color: "#fff",
+//               backgroundColor: "black",
+//               fontWeight: "500",
+//               borderRadius: "4px",
+//               padding: "2px 4px",
+//             }}
+//           >
+//             To'xtatilgan
+//           </div>
+//         ) : (
+//           <div
+//             style={{
+//               color: "#fff",
+//               backgroundColor: "green",
+//               fontWeight: "500",
+//               borderRadius: "4px",
+//               padding: "2px 4px",
+//             }}
+//           >
+//             Faol
+//           </div>
+//         ),
+//     },
+//     {
+//       title: "Yaratildi",
+//       dataIndex: "created_by_user",
+//       width: "15%",
+//     },
+//     {
+//       title: "Yaratilgan vaqt",
+//       dataIndex: "created_at",
+//       width: "20%",
+//     },
+//     {
+//       title: "Izoh",
+//       dataIndex: "comment",
+//       width: "20%",
+//     },
+//     {
+//       title: "Actions",
+//       dataIndex: "actions",
+//       width: "15%",
+//       align: "center",
+//       render: (_, record) => (
+//         <Space>
+//           <Popconfirm
+//             title="Are you sure to delete this user?"
+//             onConfirm={() => handleDelete(record.id)}
+//             okText="Yes"
+//             cancelText="No"
+//           >
+//             <Button type="link" style={{ color: "red" }}>
+//               <Trash2 />
+//             </Button>
+//           </Popconfirm>
+//           <Button type="link" onClick={() => handleEdit(record)}>
+//             <FilePenLine />
+//           </Button>
+//         </Space>
+//       ),
+//     },
+//   ];
 
-    try {
-      const response = await axios.get<DataType[]>("/api/your-endpoint", {
-        params: {
-          search: value,
-        },
-      });
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await axios.get<DataType[]>("/api/your-endpoint");
+//         if (Array.isArray(response.data)) {
+//           setData(response.data);
+//           setPagination();
+//         } else {
+//           console.error("Unexpected API response format:", response.data);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchData();
+//   }, [pagination?.current, pagination?.pageSize]);
 
-      const rawData = response.data;
-      if (Array.isArray(rawData)) {
-        setData(rawData);
-        setTableParams({
-          ...tableParams,
-          pagination: {
-            ...tableParams.pagination,
-            total: rawData.length,
-          },
-        });
-      } else {
-        console.error("Unexpected API response format:", rawData);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const handleTableChange: TableProps<DataType>["onChange"] = (
+//     pagination,
+//     filters,
+//     sorter
+//   ) => {
+//     setPagination({
+     
+//     });
 
-  const columns: ColumnsType<DataType> = [
-    {
-      title: "ID",
-      dataIndex: "order",
-      width: "0.1%",
-      render: (_, __, index: number) => {
-        const currentPage = tableParams.pagination?.current ?? 1;
-        const pageSize = tableParams.pagination?.pageSize ?? 10;
-        return (currentPage - 1) * pageSize + index + 1;
-      },
-    },
-    {
-      title: "F.I.SH",
-      dataIndex: "fullname",
-      width: "10%",
-      render: val => <span style={{ color: "#1677FF" }}>{val}</span>,
-    },
-    {
-      title: "Telefon Raqami",
-      dataIndex: "phone",
-      width: "10%",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      width: "8%",
-      align: "center",
-      render: (status: boolean) =>
-        status ? (
-          <div
-            style={{
-              color: "#fff",
-              backgroundColor: "black",
-              fontWeight: "500",
-              borderRadius: "4px",
-              paddingBlock: "2px",
-            }}
-          >
-            To'xtatilgan
-          </div>
-        ) : (
-          <div
-            style={{
-              color: "#fff",
-              backgroundColor: "green",
-              fontWeight: "500",
-              borderRadius: "4px",
-              paddingBlock: "2px",
-            }}
-          >
-            Faol
-          </div>
-        ),
-    },
-    {
-      title: "Yaratildi",
-      dataIndex: "created_by_user",
-      width: "10%",
-    },
-    {
-      title: "Yaratilgan vaqt",
-      dataIndex: "created_at",
-      width: "10%",
-    },
-    {
-      title: "Izoh",
-      dataIndex: "comment",
-      width: "20%",
-    },
-    {
-      title: "Actions",
-      dataIndex: "actions",
-      width: "4%",
-      align: "center",
-      render: (_, record) => (
-        <Space>
-          <Popconfirm
-            title="Are you sure to delete this user?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="link" style={{ color: "red" }}>
-              <Trash2 />
-            </Button>
-          </Popconfirm>
-          <Button type="link" onClick={() => handleEdit(record)}>
-            <FilePenLine />
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+//     if (pagination.pageSize !== pagination?.pageSize) {
+//       setData([]);
+//     }
+//   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get<DataType[]>("/api/your-endpoint");
-        const rawData = response.data;
+//   return (
+//     <>
+//       <div
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           marginBottom: 16,
+//         }}
+//       >
+//         <Input
+//           placeholder="Search"
+//           prefix={<SearchOutlined />}
+//           value={searchText}
+//           onChange={e => handleSearch(e.target.value)}
+//           style={{ width: 500 }}
+//         />
+//         <Button type="primary" onClick={() => setOpenModal(true)}>
+//           <Plus />
+//           Oq list qo'shish
+//         </Button>
+//       </div>
+//       <WhiteListModal openModal={openModal} setOpenModal={setOpenModal} />
+//       <Table
+//         columns={columns}
+//         rowKey={record => record.id.toString()}
+//         dataSource={data}
+//         pagination={pagination}
+//         loading={loading}
+//         onChange={handleTableChange}
+//         bordered
+//       />
+//     </>
+//   );
+// };
 
-        if (Array.isArray(rawData)) {
-          setData(rawData);
-          setTableParams({
-            ...tableParams,
-            pagination: {
-              ...tableParams.pagination,
-              total: rawData.length,
-            },
-          });
-        } else {
-          console.error("Unexpected API response format:", rawData);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+// export default PositionsTable;
 
-    fetchData();
-  }, [tableParams.pagination?.current, tableParams.pagination?.pageSize]);
-
-  const handleTableChange: TableProps<DataType>["onChange"] = (
-    pagination,
-    filters,
-    sorter
-  ) => {
-    setTableParams({
-      pagination,
-      filters,
-      ...sorter,
-    });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData([]);
-    }
-  };
-
+export default function WhiteListTable() {
   return (
-    <>
-      <Flex justify="space-between" align="center" style={{ marginBottom: 16 }}>
-        <Input
-          placeholder="Search"
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={e => handleSearch(e.target.value)}
-          style={{ width: 500 }}
-        />
-        <Button type="primary" onClick={() => setOpenModal(true)}>
-          <Plus />
-          Oq list qo'shish
-        </Button>
-      </Flex>
-      <WhiteListModal openModal={openModal} setOpenModal={setOpenModal} />
-      <Table
-        columns={columns}
-        rowKey={record => record.id.toString()}
-        dataSource={data}
-        pagination={tableParams.pagination}
-        loading={loading}
-        onChange={handleTableChange}
-        bordered
-      />
-    </>
-  );
-};
-
-export default PositionsTable;
+    <div>WhiteListTable</div>
+  )
+}

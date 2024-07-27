@@ -37,7 +37,6 @@ export const audioDownloader = async (
     });
 
     const audioUrl = window.URL.createObjectURL(blob);
-    console.log(audioUrl);
 
     return audioUrl;
   } catch (error) {

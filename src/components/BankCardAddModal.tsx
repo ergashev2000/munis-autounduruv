@@ -165,6 +165,7 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
 
   const startCooldown = () => {
     setIsCooldown(true);
+    setOpenOtpInput(true);
     setTimer(30);
   };
 
@@ -272,7 +273,9 @@ const BankCardAddModal: React.FC<BankCardModalProps> = ({
         <Flex justify="end">
           {isCooldown ? (
             <Flex gap={10} align="center">
-              <p>Tasdiqlash kodini 30 soniyadan so'ng qayta yubora olasiz!</p>
+              <p>
+                Tasdiqlash kodini {timer} soniyadan so'ng qayta yubora olasiz!
+              </p>
               <Progress
                 type="circle"
                 percent={timer * 3.33}

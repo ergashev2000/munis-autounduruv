@@ -3,7 +3,7 @@ import { debounce } from "lodash";
 import { useLocation, useNavigate, createSearchParams } from "react-router-dom";
 import { Button, Flex, Input, Popconfirm, Space } from "antd";
 import Table, { ColumnsType } from "antd/es/table";
-import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { FilePenLine, Trash2 } from "lucide-react";
 import type { TableProps } from "antd";
 
@@ -123,7 +123,7 @@ const EmployeesTable: React.FC = () => {
     {
       title: "Harakatlar",
       key: "action",
-      width: "20%",
+      width: "8%",
       align: "center",
       render: (_, record) => (
         <Space size="middle">
@@ -169,7 +169,7 @@ const EmployeesTable: React.FC = () => {
         />
         <Button
           type="primary"
-          icon={<PlusOutlined />}
+          icon={<PlusCircleOutlined />}
           onClick={() => setOpenModal(true)}
         >
           Foydalanuvchi qo'shish

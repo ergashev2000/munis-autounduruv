@@ -125,7 +125,6 @@ export const createMultipart = async <T>(
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(response);
 
     const responseData = response.data.data;
     cache.clear();

@@ -68,7 +68,6 @@ export default function BankCardDrawer({
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const { user } = useAuth();
-  console.log(user);
 
   const sendCardDetails = async (id: string) => {
     setLoading(true);
