@@ -1,8 +1,9 @@
 import { Suspense, lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
-import { getValueFromCookie } from "@utils/cookies";
 import PrivateRoute from "./PrivateRoute";
 import Unauthorized from "@components/Unauthorized";
+import { Flex, Spin } from "antd";
+import { AllowedPages } from "../enums/Allows";
 
 // Lazy loading components
 const BankCards = lazy(() => import("../pages/BankCards"));
@@ -18,14 +19,21 @@ const Branches = lazy(() => import("../pages/Branches"));
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
 const ProviderLayout = lazy(() => import("../layouts/ProviderLayout"));
 
-const permissions = getValueFromCookie("permissions");
-console.log(permissions);
+const { DASHBOARD, REPORTS, CARD_ACTIONS, SETTINGS } =
+  AllowedPages;
+const loading = () => {
+  return (
+    <Flex justify="center" align="center">
+      <Spin />
+    </Flex>
+  );
+};
 
 const privateRoutes = [
   {
     path: "/",
     element: (
-      <Suspense fallback={<div>Loading layout...</div>}>
+      <Suspense fallback={loading()}>
         <ProviderLayout />
       </Suspense>
     ),
@@ -33,7 +41,7 @@ const privateRoutes = [
       {
         path: "/",
         element: (
-          <Suspense fallback={<div>Loading main layout...</div>}>
+          <Suspense fallback={loading()}>
             <MainLayout />
           </Suspense>
         ),
@@ -43,11 +51,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading dashboard...</div>}>
+                  <Suspense fallback={loading()}>
                     <Dashboard />
                   </Suspense>
                 }
-                permission={permissions?.dashboard}
+                requiredPermission={DASHBOARD}
               />
             ),
           },
@@ -56,11 +64,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading bank cards...</div>}>
+                  <Suspense fallback={loading()}>
                     <BankCards />
                   </Suspense>
                 }
-                permission={permissions?.cardActions}
+                requiredPermission={CARD_ACTIONS}
               />
             ),
           },
@@ -69,11 +77,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading employees...</div>}>
+                  <Suspense fallback={loading()}>
                     <Employees />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -82,11 +90,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading positions...</div>}>
+                  <Suspense fallback={loading()}>
                     <Positions />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -95,11 +103,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading calls...</div>}>
+                  <Suspense fallback={loading()}>
                     <Calls />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -108,11 +116,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading media...</div>}>
+                  <Suspense fallback={loading()}>
                     <AddAudioSms />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -121,11 +129,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading white list...</div>}>
+                  <Suspense fallback={loading()}>
                     <WhiteList />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -134,11 +142,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading branches...</div>}>
+                  <Suspense fallback={loading()}>
                     <Branches />
                   </Suspense>
                 }
-                permission={permissions?.settings}
+                requiredPermission={SETTINGS}
               />
             ),
           },
@@ -147,11 +155,11 @@ const privateRoutes = [
             element: (
               <PrivateRoute
                 element={
-                  <Suspense fallback={<div>Loading customer reports...</div>}>
+                  <Suspense fallback={loading()}>
                     <CustomerReports />
                   </Suspense>
                 }
-                permission={permissions?.reports}
+                requiredPermission={REPORTS}
               />
             ),
           },

@@ -66,7 +66,6 @@ export default function MediaFilesAudio() {
       await createMultipart("/audios", formData);
 
       handleCancel();
-      console.log("File and title successfully uploaded!");
     } catch (error) {
       console.error("Failed to upload file:", error);
     } finally {

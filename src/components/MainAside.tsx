@@ -43,10 +43,13 @@ const MainAside: React.FC = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { pages } = user || {};
 
   const items: MenuItem[] = [
-    getItem("Dashboard", "1", <PieChartOutlined />, undefined, "/dashboard"),
-    user?.pages?.settings
+    pages?.settings
+      ? getItem("Dashboard", "1", <PieChartOutlined />, undefined, "/dashboard")
+      : undefined,
+    pages?.settings
       ? getItem("Sozlamalar", "2", <SettingOutlined />, [
           getItem(
             "Lavozimlar",
@@ -86,7 +89,7 @@ const MainAside: React.FC = () => {
           ),
         ])
       : undefined,
-    user?.pages?.cardActions
+    pages?.cardActions
       ? getItem("Amallar bajarish", "9", <UserOutlined />, [
           getItem(
             "Plastik kartalar",
@@ -97,7 +100,7 @@ const MainAside: React.FC = () => {
           ),
         ])
       : undefined,
-    user?.pages.adminReports &&
+    pages?.adminReports &&
       getItem("Hisobotlar", "11", <UserOutlined />, [
         getItem(
           "Xodimlar hisoboti",
@@ -184,7 +187,12 @@ const MainAside: React.FC = () => {
             })}
           </Menu>
         </div>
-        <Button danger onClick={logout} type="primary" style={{margin: "20px auto"}}>
+        <Button
+          danger
+          onClick={logout}
+          type="primary"
+          style={{ margin: "20px auto" }}
+        >
           <LogOut size={18} rotate={45} /> Chiqish
         </Button>
       </Flex>

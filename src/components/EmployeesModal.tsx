@@ -78,19 +78,21 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
   useEffect(() => {
     if (openModal) {
       if (initialData) {
+
         const transformedBranches = (
           initialData?.userBranches as unknown as Branch[]
         ).map(branch => ({
           value: branch.id,
           name: branch.name,
         }));
+        setBranches(transformedBranches);
 
         form.setFieldsValue({
           username: initialData.username,
           fullName: initialData.fullName,
           phone: initialData.phone,
           status: initialData.status,
-          positionId: initialData.positionId,
+          position: initialData.positionId,
           action: initialData.action,
           excel: initialData.excel,
           branches: transformedBranches,
@@ -120,9 +122,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
   };
 
   const handleBranchChange = (value: string[]) => {
-    console.log(value);
-
     setSelectedBranchIds(value);
+
     form.setFieldsValue({ branches: value });
   };
 
@@ -140,7 +141,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
         fullName: values.fullName,
         phone: values.phone,
         status: values.status,
-        positionId: values.positionId,
+        position: values.position,
         action: checkboxValues.action,
         excel: checkboxValues.excel,
         branches: branchIds,
@@ -222,16 +223,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
             >
               <Input placeholder="Login..." size="large" />
             </Form.Item>
-            <Form.Item
-              label="Parol"
-              name="password"
-              rules={[
-                {
-                  required: !initialData,
-                  message: "Please input the password!",
-                },
-              ]}
-            >
+            <Form.Item label="Parol" name="password">
               <Input.Password
                 placeholder="Parol..."
                 iconRender={visible =>
@@ -258,7 +250,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
             </Form.Item>
             <Form.Item
               label="Lavozim"
-              name="positionId"
+              name="position"
               rules={[
                 { required: true, message: "Please select the position!" },
               ]}
@@ -283,6 +275,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({
                   label: branch.name,
                 }))}
                 size="large"
+                allowClear
               />
             </Form.Item>
             <Form.Item>

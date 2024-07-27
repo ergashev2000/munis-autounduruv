@@ -1,24 +1,28 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
+import { AllowPages } from "../types/AllowPages";
 
 interface PrivateRouteProps {
   element: JSX.Element;
-  permission: boolean | undefined;
+  requiredPermission: keyof AllowPages["pages"] | undefined;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ element, permission }) => {
+const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  element,
+  requiredPermission,
+}) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Yuklanmoqda...</div>;
   }
 
   if (!user) {
     return <Navigate to="/auth/login" />;
   }
 
-  if (!permission) {
+  if (requiredPermission && !user.pages[requiredPermission]) {
     return <Navigate to="/unauthorized" />;
   }
 

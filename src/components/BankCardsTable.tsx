@@ -10,6 +10,7 @@ import {
   CheckOutlined,
   CloseOutlined,
   WalletOutlined,
+  CaretRightOutlined,
 } from "@ant-design/icons";
 
 import useFetch from "../hooks/useFetch";
@@ -19,6 +20,7 @@ import { BankCardTypes } from "../types/BankCardTypes";
 import { PaginatedData } from "../types/PaginatedType";
 import { alertError } from "@utils/toastify";
 import BankCardWithdrawModal from "./BankCardWithdrawModal";
+import BankCardWithCard from "./BankCardWithCard";
 
 const BankCardsTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -30,6 +32,8 @@ const BankCardsTable: React.FC = () => {
     pageSize: 10,
     total: 0,
   });
+
+  const [openWithCardModal, setOpenWithCardModal] = useState(false);
 
   const { data, loading, deleteData, refetch } = useFetch<BankCardTypes>(
     "/clients",
@@ -64,6 +68,11 @@ const BankCardsTable: React.FC = () => {
     setContractId(id);
   };
 
+  const handleOpenWithCard = (id: string) => {
+    setContractId(id);
+    setOpenWithCardModal(true);
+  };
+
   const columns: ColumnsType<BankCardTypes> = [
     {
       title: "№",
@@ -80,7 +89,9 @@ const BankCardsTable: React.FC = () => {
       dataIndex: "contractId",
       key: "contractId",
       width: "20%",
-      render: value => <span style={{ color: "#1677FF", fontWeight: "500" }}>{value}</span>,
+      render: value => (
+        <span style={{ color: "#1677FF", fontWeight: "500" }}>{value}</span>
+      ),
     },
     {
       title: "Holati",
@@ -124,8 +135,14 @@ const BankCardsTable: React.FC = () => {
       align: "center",
       render: (_, record) => (
         <Flex gap={10} justify="center">
+          <Button
+            onClick={() => handleOpenWithCard(record.id!)}
+            icon={<CreditCardOutlined />}
+          >
+            Kartani orqali to'lov
+          </Button>
           <Button onClick={() => openDrawer(record.id!)}>
-            <CreditCardOutlined /> Ulangan kartalarni ko'rish
+            Ulangan kartalarni ko'rish <CaretRightOutlined />
           </Button>
         </Flex>
       ),
@@ -143,6 +160,11 @@ const BankCardsTable: React.FC = () => {
         openDrawer={openDrawerBar}
         contractId={contractId}
         handleDelete={handleDelete}
+      />
+      <BankCardWithCard
+        openWithCardModal={openWithCardModal}
+        setOpenWithCardModal={setOpenWithCardModal}
+        userId={contractId}
       />
       <BankCardAddModal
         openModal={openModal}

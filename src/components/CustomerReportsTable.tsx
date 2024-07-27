@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 import { Flex, Input, Table } from "antd";
-import type { InputRef, TableProps } from "antd";
+import type { TableProps } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { SearchOutlined } from "@ant-design/icons";
 
@@ -19,25 +19,25 @@ interface DataType {
   updated_at: string;
 }
 
-const exampleData: DataType[] = [
-  {
-    id: "3232",
-    fullname: "Islomjon Ergashev",
-    phone: "+998908554433",
-    pnfl: "2131231",
-    unikal: "S_2112",
-    status: true,
-    created_at: "2023-01-01 10:00",
-    updated_at: "2023-01-01 10:00",
-  },
-];
+// const exampleData: DataType[] = [
+//   {
+//     id: "3232",
+//     fullname: "Islomjon Ergashev",
+//     phone: "+998908554433",
+//     pnfl: "2131231",
+//     unikal: "S_2112",
+//     status: true,
+//     created_at: "2023-01-01 10:00",
+//     updated_at: "2023-01-01 10:00",
+//   },
+// ];
 
 const UserReportsTable: React.FC = () => {
   const [data, setData] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  // const [openModal, setOpenModal] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState<string>("");
+  // const [searchedColumn, setSearchedColumn] = useState<string>("");
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -45,15 +45,15 @@ const UserReportsTable: React.FC = () => {
     },
   });
 
-  const handleEdit = (record: DataType) => {
-    console.log("Edit record:", record);
-  };
+  // const handleEdit = (record: DataType) => {
+  //   console.log("Edit record:", record);
+  // };
 
-  const handleDelete = (id: number) => {
-    console.log("Delete record with ID:", id);
-  };
+  // const handleDelete = (id: number) => {
+  //   console.log("Delete record with ID:", id);
+  // };
 
-  const searchInput = useRef<InputRef | null>(null);
+  // const searchInput = useRef<InputRef | null>(null);
 
   const handleSearch = async (value: string) => {
     setSearchText(value);
@@ -173,7 +173,6 @@ const UserReportsTable: React.FC = () => {
       try {
         const response = await axios.get<DataType[]>("/api/your-endpoint");
         const rawData = response.data;
-
         if (Array.isArray(rawData)) {
           setData(rawData);
           setTableParams({
@@ -226,7 +225,7 @@ const UserReportsTable: React.FC = () => {
       <Table
         columns={columns}
         rowKey={record => record.id.toString()}
-        dataSource={exampleData}
+        dataSource={data}
         pagination={tableParams.pagination}
         loading={loading}
         onChange={handleTableChange}

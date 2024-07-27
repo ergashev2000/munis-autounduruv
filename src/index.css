@@ -32,3 +32,18 @@
 .Toastify__toast-container {
   width: 500px !important;
 }
+
+.withcard-modal-select {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  border-left: 3px solid transparent;
+  transition: all .4s ease;
+  border-left: 3px solid #1677FF;
+}
+
+.withcard-modal-select:hover {
+  border: 1px solid #00000035;
+  background-color: #fff;
+  border-left: 3px solid #1677FF;
+}
