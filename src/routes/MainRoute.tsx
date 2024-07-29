@@ -4,6 +4,7 @@ import PrivateRoute from "./PrivateRoute";
 import Unauthorized from "@components/Unauthorized";
 import { Flex, Spin } from "antd";
 import { AllowedPages } from "../enums/Allows";
+import RedirectBasedOnPermission from "@components/RedirectBasedOnPermission";
 
 // Lazy loading components
 const BankCards = lazy(() => import("../pages/BankCards"));
@@ -46,6 +47,10 @@ const privateRoutes = [
           </Suspense>
         ),
         children: [
+          {
+            path: "/",
+            element: <RedirectBasedOnPermission/>,
+          },
           {
             path: "/dashboard",
             element: (
